@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <title>學習成績查詢</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 600px;
+      margin: 30px auto;
+      text-align: center;
+    }
+    #logo {
+      width: 150px;
+      max-width: 80%;
+      margin-bottom: 10px;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    input, button {
+      padding: 10px;
+      font-size: 16px;
+      width: 80%;
+      max-width: 400px;
+      margin: 10px auto;
+      display: block;
+      text-align: center;
+    }
+    #result {
+      margin-top: 20px;
+      text-align: center;
+    }
+    ul {
+      list-style-type: none;
+      padding-left: 0;
+      display: inline-block; /* 讓清單置中 */
+      text-align: left; /* 清單內容靠左 */
+    }
+    li {
+      margin-bottom: 8px;
+    }
+    .pass {
+      color: green;
+      font-weight: bold;
+    }
+    .fail {
+      color: red;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <img src="logo.png" alt="Logo" id="logo" />
+  <h1>學習成績查詢</h1>
+  <input id="nicknameInput" type="text" placeholder="請輸入您的暱稱" />
+  <button onclick="queryScores()">查詢成績</button>
+  <div id="result"></div>
+
+  <script>
+    async function queryScores() {
+      const nickname = document.getElementById("nicknameInput").value.trim();
+      const resultDiv = document.getElementById("result");
+      resultDiv.innerHTML = "查詢中，請稍候...";
+      if (!nickname) {
+        resultDiv.innerHTML = '<p style="color:red;">請輸入暱稱！</p>';
+        return;
+      }
+      try {
+        const apiUrl = "https://api.sheetbest.com/sheets/6609511a-f588-4e4f-bd2b-ed551cab8770";
+
+        const res = await fetch(apiUrl);
+        const data = await res.json();
+
+        // 篩選該暱稱的所有成績 (大小寫敏感，你可以改成忽略大小寫)
+        const userRecords = data.filter(row => row.nickname === nickname);
+
+        if (userRecords.length === 0) {
+          resultDiv.innerHTML = `<p style="color:red;">找不到暱稱 "${nickname}" 的成績紀錄。</p>`;
+          return;
+        }
+
+        // 按單元分組並取最新成績
+        const grouped = {};
+        userRecords.forEach(record => {
+          const unit = record.gametitle || "未分類";
+          if (!grouped[unit]) grouped[unit] = [];
+          grouped[unit].push(record);
+        });
+
+        const summary = Object.entries(grouped).map(([unit, records]) => {
+          records.sort((a,b) => new Date(b["時間戳記"]) - new Date(a["時間戳記"]));
+          return {
+            unit,
+            latestScore: records[0].score
+          };
+        });
+
+        // 顯示結果
+        let html = `<h2>${nickname} 的歷史成績</h2><ul>`;
+        summary.forEach(({unit, latestScore}) => {
+          const pass = Number(latestScore) >= 80;
+          html += `<li>${unit}：<span class="${pass ? "pass" : "fail"}">${latestScore} 分 ${pass ? "✅ 合格" : "❌ 不合格"}</span></li>`;
+        });
+        html += "</ul>";
+
+        resultDiv.innerHTML = html;
+      } catch (err) {
+        resultDiv.innerHTML = `<p style="color:red;">發生錯誤，請稍後再試。</p>`;
+        console.error(err);
+      }
+    }
+  </script>
+</body>
+</html>
