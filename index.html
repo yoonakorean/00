@@ -53,7 +53,7 @@
 <body>
   <img src="logo.png" alt="Logo" id="logo" />
   <h1>學習成績查詢</h1>
-  <input id="nicknameInput" type="text" placeholder="請輸入您的暱稱" />
+  <input id="nicknameInput" type="text" placeholder="請輸入您的姓名" />
   <button onclick="queryScores()">查詢成績</button>
   <div id="result"></div>
 
@@ -63,7 +63,7 @@
       const resultDiv = document.getElementById("result");
       resultDiv.innerHTML = "查詢中，請稍候...";
       if (!nickname) {
-        resultDiv.innerHTML = '<p style="color:red;">請輸入暱稱！</p>';
+        resultDiv.innerHTML = '<p style="color:red;">請輸入姓名！</p>';
         return;
       }
       try {
