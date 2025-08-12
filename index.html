@@ -6,7 +6,7 @@
   <style>
     body {
       font-family: sans-serif;
-      max-width: 600px;
+      max-width: 800px;
       margin: 30px auto;
       text-align: center;
     }
@@ -31,14 +31,20 @@
       margin-top: 20px;
       text-align: center;
     }
-    ul {
-      list-style-type: none;
-      padding-left: 0;
-      display: inline-block; /* 讓清單置中 */
-      text-align: left; /* 清單內容靠左 */
+    table {
+      margin: 0 auto;
+      border-collapse: collapse;
+      width: 100%;
+      max-width: 780px;
     }
-    li {
-      margin-bottom: 8px;
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px 10px;
+      text-align: center;
+      vertical-align: middle;
+    }
+    th {
+      background-color: #f2f2f2;
     }
     .pass {
       color: green;
@@ -47,6 +53,10 @@
     .fail {
       color: red;
       font-weight: bold;
+    }
+    .not-tested {
+      color: gray;
+      font-style: italic;
     }
   </style>
 </head>
@@ -58,6 +68,55 @@
   <div id="result"></div>
 
   <script>
+    // 三組單元名稱，各11個
+    const listeningUnits = [
+      "0-1 單字聽力測驗",
+      "0-2 單字聽力測驗",
+      "0-3 單字聽力測驗",
+      "0-4 單字聽力測驗",
+      "0-5 單字聽力測驗",
+      "0-6 單字聽力測驗",
+      "0-7 單字聽力測驗",
+      "0-8 單字聽力測驗",
+      "0-9 單字聽力測驗",
+      "0-10 單字聽力測驗",
+      "0-11 單字聽力測驗",
+    ];
+
+    const dictationUnits = [
+      "0-1 單字聽打測驗",
+      "0-2 單字聽打測驗",
+      "0-3 單字聽打測驗",
+      "0-4 單字聽打測驗",
+      "0-5 單字聽打測驗",
+      "0-6 單字聽打測驗",
+      "0-7 單字聽打測驗",
+      "0-8 單字聽打測驗",
+      "0-9 單字聽打測驗",
+      "0-10 單字聽打測驗",
+      "0-11 單字聽打測驗",
+    ];
+
+    const meaningUnits = [
+      "0-1 單字聽音辨義測驗",
+      "0-2 單字聽音辨義測驗",
+      "0-3 單字聽音辨義測驗",
+      "0-4 單字聽音辨義測驗",
+      "0-5 單字聽音辨義測驗",
+      "0-6 單字聽音辨義測驗",
+      "0-7 單字聽音辨義測驗",
+      "0-8 單字聽音辨義測驗",
+      "0-9 單字聽音辨義測驗",
+      "0-10 單字聽音辨義測驗",
+      "0-11 單字聽音辨義測驗",
+    ];
+
+    // 把三組合成一個二維陣列，每列對應三種測驗同一編號
+    const allUnitsGrouped = [];
+    for(let i=0; i<listeningUnits.length; i++) {
+      allUnitsGrouped.push([listeningUnits[i], dictationUnits[i], meaningUnits[i]]);
+    }
+
     async function queryScores() {
       const nickname = document.getElementById("nicknameInput").value.trim();
       const resultDiv = document.getElementById("result");
@@ -72,37 +131,50 @@
         const res = await fetch(apiUrl);
         const data = await res.json();
 
-        // 篩選該暱稱的所有成績 (大小寫敏感，你可以改成忽略大小寫)
-        const userRecords = data.filter(row => row.nickname === nickname);
+        // 篩選該暱稱的所有成績，忽略大小寫比對
+        const userRecords = data.filter(row => row.nickname && row.nickname.toLowerCase() === nickname.toLowerCase());
 
-        if (userRecords.length === 0) {
-          resultDiv.innerHTML = `<p style="color:red;">找不到暱稱 "${nickname}" 的成績紀錄。</p>`;
-          return;
-        }
-
-        // 按單元分組並取最新成績
-        const grouped = {};
+        // 以單元名稱為 key，存最新成績（取最新時間）
+        const latestScores = {};
         userRecords.forEach(record => {
           const unit = record.gametitle || "未分類";
-          if (!grouped[unit]) grouped[unit] = [];
-          grouped[unit].push(record);
+          const timestamp = new Date(record["時間戳記"]);
+          if (!latestScores[unit] || timestamp > latestScores[unit].timestamp) {
+            latestScores[unit] = {
+              score: Number(record.score),
+              timestamp
+            };
+          }
         });
 
-        const summary = Object.entries(grouped).map(([unit, records]) => {
-          records.sort((a,b) => new Date(b["時間戳記"]) - new Date(a["時間戳記"]));
-          return {
-            unit,
-            latestScore: records[0].score
-          };
+        // 生成三欄表格：左欄 聽力測驗，中 聽打測驗，右 聽音辨義測驗
+        let html = `<h2>${nickname} 的成績概覽</h2>`;
+        html += `<table>
+          <thead>
+            <tr>
+              <th>單字聽力測驗</th>
+              <th>單字聽打測驗</th>
+              <th>單字聽音辨義測驗</th>
+            </tr>
+          </thead>
+          <tbody>
+        `;
+
+        allUnitsGrouped.forEach(rowUnits => {
+          html += "<tr>";
+          rowUnits.forEach(unit => {
+            if (latestScores[unit]) {
+              const score = latestScores[unit].score;
+              const pass = score >= 80;
+              html += `<td class="${pass ? 'pass' : 'fail'}">${unit}<br>${score} 分<br>${pass ? '✅ 合格' : '❌ 不合格'}</td>`;
+            } else {
+              html += `<td class="not-tested">${unit}<br>尚未測驗</td>`;
+            }
+          });
+          html += "</tr>";
         });
 
-        // 顯示結果
-        let html = `<h2>${nickname} 的歷史成績</h2><ul>`;
-        summary.forEach(({unit, latestScore}) => {
-          const pass = Number(latestScore) >= 80;
-          html += `<li>${unit}：<span class="${pass ? "pass" : "fail"}">${latestScore} 分 ${pass ? "✅ 合格" : "❌ 不合格"}</span></li>`;
-        });
-        html += "</ul>";
+        html += `</tbody></table>`;
 
         resultDiv.innerHTML = html;
       } catch (err) {
