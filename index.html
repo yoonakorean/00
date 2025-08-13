@@ -98,7 +98,7 @@
     ];
 
     const meaningUnits = [
-      "                 ",
+      "                 ",  // 這格會空白不顯示內容
       "0-2 單字聽音辨義測驗",
       "0-3 單字聽音辨義測驗",
       "0-4 單字聽音辨義測驗",
@@ -163,7 +163,10 @@
         allUnitsGrouped.forEach(rowUnits => {
           html += "<tr>";
           rowUnits.forEach(unit => {
-            if (latestScores[unit]) {
+            if (unit.trim() === "") {
+              // 這格空白，不顯示任何內容
+              html += `<td></td>`;
+            } else if (latestScores[unit]) {
               const score = latestScores[unit].score;
               const pass = score >= 80;
               html += `<td class="${pass ? 'pass' : 'fail'}">${unit}<br>${score} 分<br>${pass ? '✅ 合格' : '❌ 不合格'}</td>`;
