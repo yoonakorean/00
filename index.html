@@ -3,6 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <title>歡迎參加挑戰賽</title>
+
+  <!-- Open Graph Meta -->
+  <meta property="og:title" content="歡迎參加挑戰賽">
+  <meta property="og:description" content="歡迎參加挑戰賽">
+  <meta property="og:image" content="https://yoonakorean.github.io/logo.png">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://yoonakorean.github.io/challenge-home/">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <style>
     body {
       font-family: sans-serif;
@@ -77,7 +87,6 @@
       text-decoration: underline;
     }
 
-    /* 手機版響應式調整 */
     @media (max-width: 600px) {
       input, button {
         width: 95%;
@@ -164,8 +173,7 @@
     }
 
     function renderInitialTable() {
-      let html = `<h2>點擊標題進入挑戰</h2>`; <!-- 只顯示文字 -->
-      html += `<h2>單元列表</h2>`;
+      let html = `<h2>單元列表</h2>`;
       html += `<table>
         <thead>
           <tr>
@@ -181,11 +189,16 @@
         const listeningUnit = rowUnits[1];
         const dictationUnit = rowUnits[2];
 
+        // 單字辨義
         html += meaningUnit.trim() ? `<td class="not-tested"><a href="${getUnitLink(meaningUnit)}" target="_blank" rel="noopener">${meaningUnit}</a><br>尚未挑戰</td>` : `<td></td>`;
+
+        // 單字聽力
         html += listeningUnit.trim() ? 
           (index === 0 ? `<td class="not-tested"><a href="${getUnitLink(listeningUnit)}" target="_blank" rel="noopener">${listeningUnit}</a><br>尚未挑戰</td>` 
                          : `<td class="locked">${listeningUnit}<br>🔒 鎖定</td>`) 
           : `<td></td>`;
+
+        // 單字聽打
         html += dictationUnit.trim() ? `<td class="locked">${dictationUnit}<br>🔒 鎖定</td>` : `<td></td>`;
 
         html += "</tr>";
@@ -219,8 +232,7 @@
           }
         });
 
-        let html = `<h2>點擊標題進入挑戰</h2>`; <!-- 只顯示文字 -->
-        html += `<h2>${nickname} 的成績概覽</h2>`;
+        let html = `<h2>${nickname} 的成績概覽</h2>`;
         html += `<table>
           <thead>
             <tr>
