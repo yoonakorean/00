@@ -58,6 +58,13 @@
       color: gray;
       font-style: italic;
     }
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
@@ -68,53 +75,65 @@
   <div id="result"></div>
 
   <script>
-    // 三組單元名稱，各11個
     const listeningUnits = [
-      "0-1 單字聽力測驗",
-      "0-2 單字聽力測驗",
-      "0-3 單字聽力測驗",
-      "0-4 單字聽力測驗",
-      "0-5 單字聽力測驗",
-      "0-6 單字聽力測驗",
-      "0-7 單字聽力測驗",
-      "0-8 單字聽力測驗",
-      "0-9 單字聽力測驗",
-      "0-10 單字聽力測驗",
-      "0-11 單字聽力測驗",
+      "0-1 單字聽力挑戰",
+      "0-2 單字聽力挑戰",
+      "0-3 單字聽力挑戰",
+      "0-4 單字聽力挑戰",
+      "0-5 單字聽力挑戰",
+      "0-6 單字聽力挑戰",
+      "0-7 單字聽力挑戰",
+      "0-8 單字聽力挑戰",
+      "0-9 單字聽力挑戰",
+      "0-10 單字聽力挑戰",
+      "0-11 單字聽力挑戰",
     ];
 
     const dictationUnits = [
-      "0-1 單字聽打測驗",
-      "0-2 單字聽打測驗",
-      "0-3 單字聽打測驗",
-      "0-4 單字聽打測驗",
-      "0-5 單字聽打測驗",
-      "0-6 單字聽打測驗",
-      "0-7 單字聽打測驗",
-      "0-8 單字聽打測驗",
-      "0-9 單字聽打測驗",
-      "0-10 單字聽打測驗",
-      "0-11 單字聽打測驗",
+      "0-1 單字聽打挑戰",
+      "0-2 單字聽打挑戰",
+      "0-3 單字聽打挑戰",
+      "0-4 單字聽打挑戰",
+      "0-5 單字聽打挑戰",
+      "0-6 單字聽打挑戰",
+      "0-7 單字聽打挑戰",
+      "0-8 單字聽打挑戰",
+      "0-9 單字聽打挑戰",
+      "0-10 單字聽打挑戰",
+      "0-11 單字聽打挑戰",
     ];
 
     const meaningUnits = [
-      "                 ",  // 這格會空白不顯示內容
-      "0-2 單字聽音辨義測驗",
-      "0-3 單字聽音辨義測驗",
-      "0-4 單字聽音辨義測驗",
-      "0-5 單字聽音辨義測驗",
-      "0-6 單字聽音辨義測驗",
-      "0-7 單字聽音辨義測驗",
-      "0-8 單字聽音辨義測驗",
-      "0-9 單字聽音辨義測驗",
-      "0-10 單字聽音辨義測驗",
-      "0-11 單字聽音辨義測驗",
+      "                 ",  // 空白
+      "0-2 單字聽音辨義挑戰",
+      "0-3 單字聽音辨義挑戰",
+      "0-4 單字聽音辨義挑戰",
+      "0-5 單字聽音辨義挑戰",
+      "0-6 單字聽音辨義挑戰",
+      "0-7 單字聽音辨義挑戰",
+      "0-8 單字聽音辨義挑戰",
+      "0-9 單字聽音辨義挑戰",
+      "0-10 單字聽音辨義挑戰",
+      "0-11 單字聽音辨義挑戰",
     ];
 
-    // 把三組合成一個二維陣列，每列對應三種測驗同一編號
+    function getUnitLink(unitName) {
+      if (unitName.includes("單字聽力挑戰")) {
+        const id = unitName.split(" ")[0];
+        return `listening/${id}.html`;
+      } else if (unitName.includes("單字聽打挑戰")) {
+        const id = unitName.split(" ")[0];
+        return `dictation/${id}.html`;
+      } else if (unitName.includes("單字聽音辨義挑戰")) {
+        const id = unitName.split(" ")[0];
+        return `meaning/${id}.html`;
+      }
+      return "#";
+    }
+
     const allUnitsGrouped = [];
-    for(let i=0; i<listeningUnits.length; i++) {
-      allUnitsGrouped.push([listeningUnits[i], dictationUnits[i], meaningUnits[i]]);
+    for (let i = 0; i < listeningUnits.length; i++) {
+      allUnitsGrouped.push([meaningUnits[i], listeningUnits[i], dictationUnits[i]]);
     }
 
     async function queryScores() {
@@ -127,14 +146,11 @@
       }
       try {
         const apiUrl = "https://api.sheetbest.com/sheets/6609511a-f588-4e4f-bd2b-ed551cab8770";
-
         const res = await fetch(apiUrl);
         const data = await res.json();
 
-        // 篩選該暱稱的所有成績，忽略大小寫比對
         const userRecords = data.filter(row => row.nickname && row.nickname.toLowerCase() === nickname.toLowerCase());
 
-        // 以單元名稱為 key，存最新成績（取最新時間）
         const latestScores = {};
         userRecords.forEach(record => {
           const unit = record.gametitle || "未分類";
@@ -147,14 +163,13 @@
           }
         });
 
-        // 生成三欄表格：左欄 聽力測驗，中 聽打測驗，右 聽音辨義測驗
         let html = `<h2>${nickname} 的成績概覽</h2>`;
         html += `<table>
           <thead>
             <tr>
-              <th>單字聽力測驗</th>
-              <th>單字聽打測驗</th>
-              <th>單字聽音辨義測驗</th>
+              <th>單字聽音辨義挑戰</th>
+              <th>單字聽力挑戰</th>
+              <th>單字聽打挑戰</th>
             </tr>
           </thead>
           <tbody>
@@ -164,21 +179,22 @@
           html += "<tr>";
           rowUnits.forEach(unit => {
             if (unit.trim() === "") {
-              // 這格空白，不顯示任何內容
               html += `<td></td>`;
-            } else if (latestScores[unit]) {
-              const score = latestScores[unit].score;
-              const pass = score >= 80;
-              html += `<td class="${pass ? 'pass' : 'fail'}">${unit}<br>${score} 分<br>${pass ? '✅ 合格' : '❌ 不合格'}</td>`;
             } else {
-              html += `<td class="not-tested">${unit}<br>尚未測驗</td>`;
+              const link = getUnitLink(unit);
+              if (latestScores[unit]) {
+                const score = latestScores[unit].score;
+                const pass = score >= 80;
+                html += `<td class="${pass ? 'pass' : 'fail'}"><a href="${link}" target="_blank">${unit}</a><br>${score} 分<br>${pass ? '✅ 合格' : '❌ 不合格'}</td>`;
+              } else {
+                html += `<td class="not-tested"><a href="${link}" target="_blank">${unit}</a><br>尚未挑戰</td>`;
+              }
             }
           });
           html += "</tr>";
         });
 
         html += `</tbody></table>`;
-
         resultDiv.innerHTML = html;
       } catch (err) {
         resultDiv.innerHTML = `<p style="color:red;">發生錯誤，請稍後再試。</p>`;
