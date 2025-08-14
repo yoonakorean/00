@@ -9,6 +9,7 @@
       max-width: 800px;
       margin: 30px auto;
       text-align: center;
+      padding: 0 10px;
     }
     #logo {
       width: 150px;
@@ -74,6 +75,19 @@
     }
     a:hover {
       text-decoration: underline;
+    }
+
+    /* 手機版響應式調整 */
+    @media (max-width: 600px) {
+      input, button {
+        width: 95%;
+      }
+      table, th, td {
+        font-size: 14px;
+      }
+      #logo {
+        width: 120px;
+      }
     }
   </style>
 </head>
