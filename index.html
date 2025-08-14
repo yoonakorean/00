@@ -58,6 +58,16 @@
       color: gray;
       font-style: italic;
     }
+    .locked {
+      color: gray;
+      font-style: italic;
+    }
+    .locked a {
+      pointer-events: none;
+      cursor: default;
+      text-decoration: none;
+      color: gray;
+    }
     a {
       text-decoration: none;
       color: inherit;
@@ -139,7 +149,7 @@
       return unitLinks[unitName] || "#";
     }
 
-    // 初始表格
+    // 初始列表
     function renderInitialTable() {
       let html = `<h2>單元列表</h2>`;
       html += `<table>
@@ -202,24 +212,53 @@
             </tr>
           </thead>
           <tbody>`;
+
         allUnitsGrouped.forEach(rowUnits => {
           html += "<tr>";
-          rowUnits.forEach(unit => {
-            if (unit.trim() === "") {
-              html += `<td></td>`; // 空白格保持空白
+          const meaningUnit = rowUnits[0];
+          const listeningUnit = rowUnits[1];
+          const dictationUnit = rowUnits[2];
+
+          // 單字辨義
+          if (meaningUnit.trim() === "") {
+            html += `<td></td>`;
+          } else {
+            const score = latestScores[meaningUnit]?.score || 0;
+            const pass = score >= 80;
+            html += `<td class="${pass ? 'pass' : 'not-tested'}"><a href="${getUnitLink(meaningUnit)}" target="_blank" rel="noopener">${meaningUnit}</a><br>${pass ? '✅ 已完成' : '尚未挑戰'}</td>`;
+          }
+
+          // 單字聽力
+          if (listeningUnit.trim() === "") {
+            html += `<td></td>`;
+          } else {
+            const unlocked = latestScores[meaningUnit]?.score >= 80;
+            if (unlocked) {
+              const score = latestScores[listeningUnit]?.score || 0;
+              const pass = score >= 80;
+              html += `<td class="${pass ? 'pass' : 'not-tested'}"><a href="${getUnitLink(listeningUnit)}" target="_blank" rel="noopener">${listeningUnit}</a><br>${pass ? '✅ 已完成' : '尚未挑戰'}</td>`;
             } else {
-              const link = getUnitLink(unit);
-              if (latestScores[unit]) {
-                const score = latestScores[unit].score;
-                const pass = score >= 80;
-                html += `<td class="${pass ? 'pass' : 'fail'}"><a href="${link}" target="_blank" rel="noopener">${unit}</a><br>${score} 分<br>${pass ? '✅ 合格' : '❌ 不合格'}</td>`;
-              } else {
-                html += `<td class="not-tested"><a href="${link}" target="_blank" rel="noopener">${unit}</a><br>尚未挑戰</td>`;
-              }
+              html += `<td class="locked">${listeningUnit}<br>🔒 鎖定</td>`;
             }
-          });
+          }
+
+          // 單字聽打
+          if (dictationUnit.trim() === "") {
+            html += `<td></td>`;
+          } else {
+            const unlocked = latestScores[listeningUnit]?.score >= 80;
+            if (unlocked) {
+              const score = latestScores[dictationUnit]?.score || 0;
+              const pass = score >= 80;
+              html += `<td class="${pass ? 'pass' : 'not-tested'}"><a href="${getUnitLink(dictationUnit)}" target="_blank" rel="noopener">${dictationUnit}</a><br>${pass ? '✅ 已完成' : '尚未挑戰'}</td>`;
+            } else {
+              html += `<td class="locked">${dictationUnit}<br>🔒 鎖定</td>`;
+            }
+          }
+
           html += "</tr>";
         });
+
         html += `</tbody></table>`;
         resultDiv.innerHTML = html;
       } catch (err) {
