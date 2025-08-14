@@ -104,7 +104,7 @@
     ];
 
     const meaningUnits = [
-      "                 ",  // 空白
+      "",  // 空白
       "0-2 單字聽音辨義挑戰",
       "0-3 單字聽音辨義挑戰",
       "0-4 單字聽音辨義挑戰",
@@ -117,18 +117,45 @@
       "0-11 單字聽音辨義挑戰",
     ];
 
+    // 對應每個單元的固定連結
+    const unitLinks = {
+      "0-1 單字聽力挑戰": "https://yoonakorean.github.io/0001WC/",
+      "0-1 單字聽打挑戰": "https://yoonakorean.github.io/0001WT/",
+      "0-1 單字聽音辨義挑戰": "",
+      "0-2 單字聽力挑戰": "https://yoonakorean.github.io/0002WC/",
+      "0-2 單字聽打挑戰": "https://yoonakorean.github.io/0002WT/",
+      "0-2 單字聽音辨義挑戰": "https://yoonakorean.github.io/0002WM/",
+      "0-3 單字聽力挑戰": "https://yoonakorean.github.io/0003WC/",
+      "0-3 單字聽打挑戰": "https://yoonakorean.github.io/0003WT/",
+      "0-3 單字聽音辨義挑戰": "https://yoonakorean.github.io/0003WM/",
+      "0-4 單字聽力挑戰": "https://yoonakorean.github.io/0004WC/",
+      "0-4 單字聽打挑戰": "https://yoonakorean.github.io/0004WT/",
+      "0-4 單字聽音辨義挑戰": "https://yoonakorean.github.io/0004WM/",
+      "0-5 單字聽力挑戰": "https://yoonakorean.github.io/0005WC/",
+      "0-5 單字聽打挑戰": "https://yoonakorean.github.io/0005WT/",
+      "0-5 單字聽音辨義挑戰": "https://yoonakorean.github.io/0005WM/",
+      "0-6 單字聽力挑戰": "https://yoonakorean.github.io/0006WC/",
+      "0-6 單字聽打挑戰": "https://yoonakorean.github.io/0006WT/",
+      "0-6 單字聽音辨義挑戰": "https://yoonakorean.github.io/0006WM/",
+      "0-7 單字聽力挑戰": "https://yoonakorean.github.io/0007WC/",
+      "0-7 單字聽打挑戰": "https://yoonakorean.github.io/0007WT/",
+      "0-7 單字聽音辨義挑戰": "https://yoonakorean.github.io/0007WM/",
+      "0-8 單字聽力挑戰": "https://yoonakorean.github.io/0008WC/",
+      "0-8 單字聽打挑戰": "https://yoonakorean.github.io/0008WT/",
+      "0-8 單字聽音辨義挑戰": "https://yoonakorean.github.io/0008WM/",
+      "0-9 單字聽力挑戰": "https://yoonakorean.github.io/0009WC/",
+      "0-9 單字聽打挑戰": "https://yoonakorean.github.io/0009WT/",
+      "0-9 單字聽音辨義挑戰": "https://yoonakorean.github.io/0009WM/",
+      "0-10 單字聽力挑戰": "https://yoonakorean.github.io/0010WC/",
+      "0-10 單字聽打挑戰": "https://yoonakorean.github.io/0010WT/",
+      "0-10 單字聽音辨義挑戰": "https://yoonakorean.github.io/0010WM/",
+      "0-11 單字聽力挑戰": "https://yoonakorean.github.io/0011WC/",
+      "0-11 單字聽打挑戰": "https://yoonakorean.github.io/0011WT/",
+      "0-11 單字聽音辨義挑戰": "https://yoonakorean.github.io/0011WM/"
+    };
+
     function getUnitLink(unitName) {
-      if (unitName.includes("單字聽力挑戰")) {
-        const id = unitName.split(" ")[0];
-        return `listening/${id}.html`;
-      } else if (unitName.includes("單字聽打挑戰")) {
-        const id = unitName.split(" ")[0];
-        return `dictation/${id}.html`;
-      } else if (unitName.includes("單字聽音辨義挑戰")) {
-        const id = unitName.split(" ")[0];
-        return `meaning/${id}.html`;
-      }
-      return "#";
+      return unitLinks[unitName] || "#";
     }
 
     const allUnitsGrouped = [];
@@ -157,7 +184,7 @@
           const timestamp = new Date(record["時間戳記"]);
           if (!latestScores[unit] || timestamp > latestScores[unit].timestamp) {
             latestScores[unit] = {
-              score: Number(record.score),
+              score: Number(record.score) || 0,
               timestamp
             };
           }
@@ -185,9 +212,9 @@
               if (latestScores[unit]) {
                 const score = latestScores[unit].score;
                 const pass = score >= 80;
-                html += `<td class="${pass ? 'pass' : 'fail'}"><a href="${link}" target="_blank">${unit}</a><br>${score} 分<br>${pass ? '✅ 合格' : '❌ 不合格'}</td>`;
+                html += `<td class="${pass ? 'pass' : 'fail'}"><a href="${link}" target="_blank" rel="noopener">${unit}</a><br>${score} 分<br>${pass ? '✅ 合格' : '❌ 不合格'}</td>`;
               } else {
-                html += `<td class="not-tested"><a href="${link}" target="_blank">${unit}</a><br>尚未挑戰</td>`;
+                html += `<td class="not-tested"><a href="${link}" target="_blank" rel="noopener">${unit}</a><br>尚未挑戰</td>`;
               }
             }
           });
