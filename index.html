@@ -149,9 +149,9 @@
       return unitLinks[unitName] || "#";
     }
 
-    // 初始列表
     function renderInitialTable() {
-      let html = `<h2>單元列表</h2>`;
+      let html = `<h2><a href="https://yoonakorean.github.io/challenge-home/" target="_blank" rel="noopener">點擊標題進入挑戰</a></h2>`;
+      html += `<h2>單元列表</h2>`;
       html += `<table>
         <thead>
           <tr>
@@ -168,29 +168,16 @@
         const dictationUnit = rowUnits[2];
 
         // 單字辨義
-        if (meaningUnit.trim() === "") {
-          html += `<td></td>`;
-        } else {
-          html += `<td class="not-tested"><a href="${getUnitLink(meaningUnit)}" target="_blank" rel="noopener">${meaningUnit}</a><br>尚未挑戰</td>`;
-        }
+        html += meaningUnit.trim() ? `<td class="not-tested"><a href="${getUnitLink(meaningUnit)}" target="_blank" rel="noopener">${meaningUnit}</a><br>尚未挑戰</td>` : `<td></td>`;
 
         // 單字聽力
-        if (listeningUnit.trim() === "") {
-          html += `<td></td>`;
-        } else {
-          if (index === 0) { // 第一單元直接解鎖
-            html += `<td class="not-tested"><a href="${getUnitLink(listeningUnit)}" target="_blank" rel="noopener">${listeningUnit}</a><br>尚未挑戰</td>`;
-          } else {
-            html += `<td class="locked">${listeningUnit}<br>🔒 鎖定</td>`;
-          }
-        }
+        html += listeningUnit.trim() ? 
+          (index === 0 ? `<td class="not-tested"><a href="${getUnitLink(listeningUnit)}" target="_blank" rel="noopener">${listeningUnit}</a><br>尚未挑戰</td>` 
+                         : `<td class="locked">${listeningUnit}<br>🔒 鎖定</td>`) 
+          : `<td></td>`;
 
         // 單字聽打
-        if (dictationUnit.trim() === "") {
-          html += `<td></td>`;
-        } else {
-          html += `<td class="locked">${dictationUnit}<br>🔒 鎖定</td>`;
-        }
+        html += dictationUnit.trim() ? `<td class="locked">${dictationUnit}<br>🔒 鎖定</td>` : `<td></td>`;
 
         html += "</tr>";
       });
@@ -223,7 +210,8 @@
           }
         });
 
-        let html = `<h2>${nickname} 的成績概覽</h2>`;
+        let html = `<h2><a href="https://yoonakorean.github.io/challenge-home/" target="_blank" rel="noopener">點擊標題進入挑戰</a></h2>`;
+        html += `<h2>${nickname} 的成績概覽</h2>`;
         html += `<table>
           <thead>
             <tr>
@@ -253,7 +241,7 @@
           if (listeningUnit.trim() === "") {
             html += `<td></td>`;
           } else {
-            const unlocked = (meaningUnit.trim() === "" || latestScores[meaningUnit]?.score >= 80);
+            const unlocked = (meaningUnit.trim() === "" || latestScores[meaningUnit]?.score >= 80) || index === 0;
             if (unlocked) {
               const score = latestScores[listeningUnit]?.score || 0;
               const pass = score >= 80;
@@ -288,7 +276,6 @@
       }
     }
 
-    // 初始化頁面顯示列表
     renderInitialTable();
   </script>
 </body>
