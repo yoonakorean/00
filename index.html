@@ -76,48 +76,24 @@
 
   <script>
     const listeningUnits = [
-      "0-1 單字聽力挑戰",
-      "0-2 單字聽力挑戰",
-      "0-3 單字聽力挑戰",
-      "0-4 單字聽力挑戰",
-      "0-5 單字聽力挑戰",
-      "0-6 單字聽力挑戰",
-      "0-7 單字聽力挑戰",
-      "0-8 單字聽力挑戰",
-      "0-9 單字聽力挑戰",
-      "0-10 單字聽力挑戰",
-      "0-11 單字聽力挑戰",
+      "0-1 單字聽力挑戰","0-2 單字聽力挑戰","0-3 單字聽力挑戰","0-4 單字聽力挑戰",
+      "0-5 單字聽力挑戰","0-6 單字聽力挑戰","0-7 單字聽力挑戰","0-8 單字聽力挑戰",
+      "0-9 單字聽力挑戰","0-10 單字聽力挑戰","0-11 單字聽力挑戰"
     ];
 
     const dictationUnits = [
-      "0-1 單字聽打挑戰",
-      "0-2 單字聽打挑戰",
-      "0-3 單字聽打挑戰",
-      "0-4 單字聽打挑戰",
-      "0-5 單字聽打挑戰",
-      "0-6 單字聽打挑戰",
-      "0-7 單字聽打挑戰",
-      "0-8 單字聽打挑戰",
-      "0-9 單字聽打挑戰",
-      "0-10 單字聽打挑戰",
-      "0-11 單字聽打挑戰",
+      "0-1 單字聽打挑戰","0-2 單字聽打挑戰","0-3 單字聽打挑戰","0-4 單字聽打挑戰",
+      "0-5 單字聽打挑戰","0-6 單字聽打挑戰","0-7 單字聽打挑戰","0-8 單字聽打挑戰",
+      "0-9 單字聽打挑戰","0-10 單字聽打挑戰","0-11 單字聽打挑戰"
     ];
 
     const meaningUnits = [
-      "",  // 空白
-      "0-2 單字聽音辨義挑戰",
-      "0-3 單字聽音辨義挑戰",
-      "0-4 單字聽音辨義挑戰",
-      "0-5 單字聽音辨義挑戰",
-      "0-6 單字聽音辨義挑戰",
-      "0-7 單字聽音辨義挑戰",
-      "0-8 單字聽音辨義挑戰",
-      "0-9 單字聽音辨義挑戰",
-      "0-10 單字聽音辨義挑戰",
-      "0-11 單字聽音辨義挑戰",
+      "", "0-2 單字聽音辨義挑戰","0-3 單字聽音辨義挑戰","0-4 單字聽音辨義挑戰",
+      "0-5 單字聽音辨義挑戰","0-6 單字聽音辨義挑戰","0-7 單字聽音辨義挑戰",
+      "0-8 單字聽音辨義挑戰","0-9 單字聽音辨義挑戰","0-10 單字聽音辨義挑戰",
+      "0-11 單字聽音辨義挑戰"
     ];
 
-    // 正確對應 URL
     const unitLinks = {
       "0-1 單字聽音辨義挑戰": "",
       "0-1 單字聽力挑戰": "https://yoonakorean.github.io/0001WC/",
@@ -154,23 +130,49 @@
       "0-11 單字聽打挑戰": "https://yoonakorean.github.io/0011WT/"
     };
 
-    function getUnitLink(unitName) {
-      return unitLinks[unitName] || "#";
-    }
-
     const allUnitsGrouped = [];
     for (let i = 0; i < listeningUnits.length; i++) {
       allUnitsGrouped.push([meaningUnits[i], listeningUnits[i], dictationUnits[i]]);
     }
 
+    function getUnitLink(unitName) {
+      return unitLinks[unitName] || "#";
+    }
+
+    // 生成初始表格 (尚未輸入名字時顯示)
+    function renderInitialTable() {
+      let html = `<h2>單元列表</h2>`;
+      html += `<table>
+        <thead>
+          <tr>
+            <th>單字聽音辨義挑戰</th>
+            <th>單字聽力挑戰</th>
+            <th>單字聽打挑戰</th>
+          </tr>
+        </thead>
+        <tbody>`;
+      allUnitsGrouped.forEach(rowUnits => {
+        html += "<tr>";
+        rowUnits.forEach(unit => {
+          if (unit.trim() === "") {
+            html += `<td></td>`;
+          } else {
+            const link = getUnitLink(unit);
+            html += `<td class="not-tested"><a href="${link}" target="_blank" rel="noopener">${unit}</a><br>尚未挑戰</td>`;
+          }
+        });
+        html += "</tr>";
+      });
+      html += `</tbody></table>`;
+      document.getElementById("result").innerHTML = html;
+    }
+
     async function queryScores() {
       const nickname = document.getElementById("nicknameInput").value.trim();
+      if (!nickname) return;
+
       const resultDiv = document.getElementById("result");
       resultDiv.innerHTML = "查詢中，請稍候...";
-      if (!nickname) {
-        resultDiv.innerHTML = '<p style="color:red;">請輸入姓名！</p>';
-        return;
-      }
       try {
         const apiUrl = "https://api.sheetbest.com/sheets/6609511a-f588-4e4f-bd2b-ed551cab8770";
         const res = await fetch(apiUrl);
@@ -199,28 +201,21 @@
               <th>單字聽打挑戰</th>
             </tr>
           </thead>
-          <tbody>
-        `;
-
+          <tbody>`;
         allUnitsGrouped.forEach(rowUnits => {
           html += "<tr>";
           rowUnits.forEach(unit => {
-            if (unit.trim() === "") {
-              html += `<td></td>`;
+            const link = getUnitLink(unit);
+            if (latestScores[unit]) {
+              const score = latestScores[unit].score;
+              const pass = score >= 80;
+              html += `<td class="${pass ? 'pass' : 'fail'}"><a href="${link}" target="_blank" rel="noopener">${unit}</a><br>${score} 分<br>${pass ? '✅ 合格' : '❌ 不合格'}</td>`;
             } else {
-              const link = getUnitLink(unit);
-              if (latestScores[unit]) {
-                const score = latestScores[unit].score;
-                const pass = score >= 80;
-                html += `<td class="${pass ? 'pass' : 'fail'}"><a href="${link}" target="_blank" rel="noopener">${unit}</a><br>${score} 分<br>${pass ? '✅ 合格' : '❌ 不合格'}</td>`;
-              } else {
-                html += `<td class="not-tested"><a href="${link}" target="_blank" rel="noopener">${unit}</a><br>尚未挑戰</td>`;
-              }
+              html += `<td class="not-tested"><a href="${link}" target="_blank" rel="noopener">${unit}</a><br>尚未挑戰</td>`;
             }
           });
           html += "</tr>";
         });
-
         html += `</tbody></table>`;
         resultDiv.innerHTML = html;
       } catch (err) {
@@ -228,6 +223,9 @@
         console.error(err);
       }
     }
+
+    // 初始化頁面時先顯示所有單元列表
+    renderInitialTable();
   </script>
 </body>
 </html>
