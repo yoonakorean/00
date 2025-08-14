@@ -139,7 +139,7 @@
       return unitLinks[unitName] || "#";
     }
 
-    // 生成初始表格 (尚未輸入名字時顯示)
+    // 初始表格
     function renderInitialTable() {
       let html = `<h2>單元列表</h2>`;
       html += `<table>
@@ -205,13 +205,17 @@
         allUnitsGrouped.forEach(rowUnits => {
           html += "<tr>";
           rowUnits.forEach(unit => {
-            const link = getUnitLink(unit);
-            if (latestScores[unit]) {
-              const score = latestScores[unit].score;
-              const pass = score >= 80;
-              html += `<td class="${pass ? 'pass' : 'fail'}"><a href="${link}" target="_blank" rel="noopener">${unit}</a><br>${score} 分<br>${pass ? '✅ 合格' : '❌ 不合格'}</td>`;
+            if (unit.trim() === "") {
+              html += `<td></td>`; // 空白格保持空白
             } else {
-              html += `<td class="not-tested"><a href="${link}" target="_blank" rel="noopener">${unit}</a><br>尚未挑戰</td>`;
+              const link = getUnitLink(unit);
+              if (latestScores[unit]) {
+                const score = latestScores[unit].score;
+                const pass = score >= 80;
+                html += `<td class="${pass ? 'pass' : 'fail'}"><a href="${link}" target="_blank" rel="noopener">${unit}</a><br>${score} 分<br>${pass ? '✅ 合格' : '❌ 不合格'}</td>`;
+              } else {
+                html += `<td class="not-tested"><a href="${link}" target="_blank" rel="noopener">${unit}</a><br>尚未挑戰</td>`;
+              }
             }
           });
           html += "</tr>";
@@ -224,7 +228,7 @@
       }
     }
 
-    // 初始化頁面時先顯示所有單元列表
+    // 初始化頁面顯示列表
     renderInitialTable();
   </script>
 </body>
