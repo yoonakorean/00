@@ -1,274 +1,125 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-  <meta charset="UTF-8" />
-  <title>挑戰成績查詢</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      max-width: 800px;
-      margin: 30px auto;
-      text-align: center;
-    }
-    #logo {
-      width: 150px;
-      max-width: 80%;
-      margin-bottom: 10px;
-      display: block;
-      margin-left: auto;
-      margin-right: auto;
-    }
-    input, button {
-      padding: 10px;
-      font-size: 16px;
-      width: 80%;
-      max-width: 400px;
-      margin: 10px auto;
-      display: block;
-      text-align: center;
-    }
-    #result {
-      margin-top: 20px;
-      text-align: center;
-    }
-    table {
-      margin: 0 auto;
-      border-collapse: collapse;
-      width: 100%;
-      max-width: 780px;
-    }
-    th, td {
-      border: 1px solid #ccc;
-      padding: 8px 10px;
-      text-align: center;
-      vertical-align: middle;
-    }
-    th {
-      background-color: #f2f2f2;
-    }
-    .pass {
-      color: green;
-      font-weight: bold;
-    }
-    .fail {
-      color: red;
-      font-weight: bold;
-    }
-    .not-tested {
-      color: gray;
-      font-style: italic;
-    }
-    .locked {
-      color: gray;
-      font-style: italic;
-    }
-    .locked a {
-      pointer-events: none;
-      cursor: default;
-      text-decoration: none;
-      color: gray;
-    }
-    a {
-      text-decoration: none;
-      color: inherit;
-    }
-    a:hover {
-      text-decoration: underline;
-    }
-  </style>
+<meta charset="UTF-8" />
+<title>挑戰成績查詢</title>
+<style>
+  body { font-family: sans-serif; max-width: 800px; margin: 30px auto; text-align: center; }
+  #logo { width: 150px; max-width: 80%; margin-bottom: 10px; display: block; margin-left: auto; margin-right: auto; }
+  input, button { padding: 10px; font-size: 16px; width: 80%; max-width: 400px; margin: 10px auto; display: block; text-align: center; }
+  #result { margin-top: 20px; text-align: center; }
+  table { margin: 0 auto; border-collapse: collapse; width: 100%; max-width: 780px; }
+  th, td { border: 1px solid #ccc; padding: 8px 10px; text-align: center; vertical-align: middle; }
+  th { background-color: #f2f2f2; }
+  .pass { color: green; font-weight: bold; }
+  .fail { color: red; font-weight: bold; }
+  .not-tested { color: gray; font-style: italic; }
+  .locked { color: gray; font-style: italic; }
+  .locked a { pointer-events: none; cursor: default; text-decoration: none; color: gray; }
+  a { text-decoration: none; color: inherit; }
+  a:hover { text-decoration: underline; }
+  .progress-container { background-color: #e0e0e0; border-radius: 5px; height: 12px; width: 80%; margin: 5px auto 0 auto; }
+  .progress-bar { height: 100%; border-radius: 5px; }
+</style>
 </head>
 <body>
-  <img src="logo.png" alt="Logo" id="logo" />
-  <h1>挑戰成績查詢</h1>
-  <input id="nicknameInput" type="text" placeholder="請輸入您的姓名" />
-  <button onclick="queryScores()">查詢成績</button>
-  <div id="result"></div>
+<img src="logo.png" alt="Logo" id="logo" />
+<h1>挑戰成績查詢</h1>
+<input id="nicknameInput" type="text" placeholder="請輸入您的姓名" />
+<button onclick="queryScores()">查詢成績</button>
+<div id="result"></div>
 
-  <script>
-    const listeningUnits = [
-      "0-1 單字聽力挑戰","0-2 單字聽力挑戰","0-3 單字聽力挑戰","0-4 單字聽力挑戰",
-      "0-5 單字聽力挑戰","0-6 單字聽力挑戰","0-7 單字聽力挑戰","0-8 單字聽力挑戰",
-      "0-9 單字聽力挑戰","0-10 單字聽力挑戰","0-11 單字聽力挑戰"
-    ];
+<script>
+const listeningUnits = ["0-1 單字聽力挑戰","0-2 單字聽力挑戰","0-3 單字聽力挑戰","0-4 單字聽力挑戰","0-5 單字聽力挑戰","0-6 單字聽力挑戰","0-7 單字聽力挑戰","0-8 單字聽力挑戰","0-9 單字聽力挑戰","0-10 單字聽力挑戰","0-11 單字聽力挑戰"];
+const dictationUnits = ["0-1 單字聽打挑戰","0-2 單字聽打挑戰","0-3 單字聽打挑戰","0-4 單字聽打挑戰","0-5 單字聽打挑戰","0-6 單字聽打挑戰","0-7 單字聽打挑戰","0-8 單字聽打挑戰","0-9 單字聽打挑戰","0-10 單字聽打挑戰","0-11 單字聽打挑戰"];
+const meaningUnits = ["","0-2 單字聽音辨義挑戰","0-3 單字聽音辨義挑戰","0-4 單字聽音辨義挑戰","0-5 單字聽音辨義挑戰","0-6 單字聽音辨義挑戰","0-7 單字聽音辨義挑戰","0-8 單字聽音辨義挑戰","0-9 單字聽音辨義挑戰","0-10 單字聽音辨義挑戰","0-11 單字聽音辨義挑戰"];
 
-    const dictationUnits = [
-      "0-1 單字聽打挑戰","0-2 單字聽打挑戰","0-3 單字聽打挑戰","0-4 單字聽打挑戰",
-      "0-5 單字聽打挑戰","0-6 單字聽打挑戰","0-7 單字聽打挑戰","0-8 單字聽打挑戰",
-      "0-9 單字聽打挑戰","0-10 單字聽打挑戰","0-11 單字聽打挑戰"
-    ];
+const unitLinks = {
+  "0-1 單字聽音辨義挑戰": "", "0-1 單字聽力挑戰": "https://yoonakorean.github.io/0001WC/", "0-1 單字聽打挑戰": "https://yoonakorean.github.io/0001WT/",
+  "0-2 單字聽音辨義挑戰": "https://yoonakorean.github.io/0002WM/", "0-2 單字聽力挑戰": "https://yoonakorean.github.io/0002WC/", "0-2 單字聽打挑戰": "https://yoonakorean.github.io/0002WT/",
+  "0-3 單字聽音辨義挑戰": "https://yoonakorean.github.io/0003WM/", "0-3 單字聽力挑戰": "https://yoonakorean.github.io/0003WC/", "0-3 單字聽打挑戰": "https://yoonakorean.github.io/0003WT/",
+  "0-4 單字聽音辨義挑戰": "https://yoonakorean.github.io/0004WM/", "0-4 單字聽力挑戰": "https://yoonakorean.github.io/0004WC/", "0-4 單字聽打挑戰": "https://yoonakorean.github.io/0004WT/",
+  "0-5 單字聽音辨義挑戰": "https://yoonakorean.github.io/0005WM/", "0-5 單字聽力挑戰": "https://yoonakorean.github.io/0005WC/", "0-5 單字聽打挑戰": "https://yoonakorean.github.io/0005WT/",
+  "0-6 單字聽音辨義挑戰": "https://yoonakorean.github.io/0006WM/", "0-6 單字聽力挑戰": "https://yoonakorean.github.io/0006WC/", "0-6 單字聽打挑戰": "https://yoonakorean.github.io/0006WT/",
+  "0-7 單字聽音辨義挑戰": "https://yoonakorean.github.io/0007WM/", "0-7 單字聽力挑戰": "https://yoonakorean.github.io/0007WC/", "0-7 單字聽打挑戰": "https://yoonakorean.github.io/0007WT/",
+  "0-8 單字聽音辨義挑戰": "https://yoonakorean.github.io/0008WM/", "0-8 單字聽力挑戰": "https://yoonakorean.github.io/0008WC/", "0-8 單字聽打挑戰": "https://yoonakorean.github.io/0008WT/",
+  "0-9 單字聽音辨義挑戰": "https://yoonakorean.github.io/0009WM/", "0-9 單字聽力挑戰": "https://yoonakorean.github.io/0009WC/", "0-9 單字聽打挑戰": "https://yoonakorean.github.io/0009WT/",
+  "0-10 單字聽音辨義挑戰": "https://yoonakorean.github.io/0010WM/", "0-10 單字聽力挑戰": "https://yoonakorean.github.io/0010WC/", "0-10 單字聽打挑戰": "https://yoonakorean.github.io/0010WT/",
+  "0-11 單字聽音辨義挑戰": "https://yoonakorean.github.io/0011WM/", "0-11 單字聽力挑戰": "https://yoonakorean.github.io/0011WC/", "0-11 單字聽打挑戰": "https://yoonakorean.github.io/0011WT/"
+};
 
-    const meaningUnits = [
-      "", "0-2 單字聽音辨義挑戰","0-3 單字聽音辨義挑戰","0-4 單字聽音辨義挑戰",
-      "0-5 單字聽音辨義挑戰","0-6 單字聽音辨義挑戰","0-7 單字聽音辨義挑戰",
-      "0-8 單字聽音辨義挑戰","0-9 單字聽音辨義挑戰","0-10 單字聽音辨義挑戰",
-      "0-11 單字聽音辨義挑戰"
-    ];
+const allUnitsGrouped = [];
+for (let i = 0; i < listeningUnits.length; i++) allUnitsGrouped.push([meaningUnits[i], listeningUnits[i], dictationUnits[i]]);
+function getUnitLink(unitName){ return unitLinks[unitName]||"#"; }
 
-    const unitLinks = {
-      "0-1 單字聽音辨義挑戰": "",
-      "0-1 單字聽力挑戰": "https://yoonakorean.github.io/0001WC/",
-      "0-1 單字聽打挑戰": "https://yoonakorean.github.io/0001WT/",
-      "0-2 單字聽音辨義挑戰": "https://yoonakorean.github.io/0002WM/",
-      "0-2 單字聽力挑戰": "https://yoonakorean.github.io/0002WC/",
-      "0-2 單字聽打挑戰": "https://yoonakorean.github.io/0002WT/",
-      "0-3 單字聽音辨義挑戰": "https://yoonakorean.github.io/0003WM/",
-      "0-3 單字聽力挑戰": "https://yoonakorean.github.io/0003WC/",
-      "0-3 單字聽打挑戰": "https://yoonakorean.github.io/0003WT/",
-      "0-4 單字聽音辨義挑戰": "https://yoonakorean.github.io/0004WM/",
-      "0-4 單字聽力挑戰": "https://yoonakorean.github.io/0004WC/",
-      "0-4 單字聽打挑戰": "https://yoonakorean.github.io/0004WT/",
-      "0-5 單字聽音辨義挑戰": "https://yoonakorean.github.io/0005WM/",
-      "0-5 單字聽力挑戰": "https://yoonakorean.github.io/0005WC/",
-      "0-5 單字聽打挑戰": "https://yoonakorean.github.io/0005WT/",
-      "0-6 單字聽音辨義挑戰": "https://yoonakorean.github.io/0006WM/",
-      "0-6 單字聽力挑戰": "https://yoonakorean.github.io/0006WC/",
-      "0-6 單字聽打挑戰": "https://yoonakorean.github.io/0006WT/",
-      "0-7 單字聽音辨義挑戰": "https://yoonakorean.github.io/0007WM/",
-      "0-7 單字聽力挑戰": "https://yoonakorean.github.io/0007WC/",
-      "0-7 單字聽打挑戰": "https://yoonakorean.github.io/0007WT/",
-      "0-8 單字聽音辨義挑戰": "https://yoonakorean.github.io/0008WM/",
-      "0-8 單字聽力挑戰": "https://yoonakorean.github.io/0008WC/",
-      "0-8 單字聽打挑戰": "https://yoonakorean.github.io/0008WT/",
-      "0-9 單字聽音辨義挑戰": "https://yoonakorean.github.io/0009WM/",
-      "0-9 單字聽力挑戰": "https://yoonakorean.github.io/0009WC/",
-      "0-9 單字聽打挑戰": "https://yoonakorean.github.io/0009WT/",
-      "0-10 單字聽音辨義挑戰": "https://yoonakorean.github.io/0010WM/",
-      "0-10 單字聽力挑戰": "https://yoonakorean.github.io/0010WC/",
-      "0-10 單字聽打挑戰": "https://yoonakorean.github.io/0010WT/",
-      "0-11 單字聽音辨義挑戰": "https://yoonakorean.github.io/0011WM/",
-      "0-11 單字聽力挑戰": "https://yoonakorean.github.io/0011WC/",
-      "0-11 單字聽打挑戰": "https://yoonakorean.github.io/0011WT/"
-    };
+function renderInitialTable() {
+  let html=`<h2>單元列表</h2><table><thead><tr><th>單字聽音辨義挑戰</th><th>單字聽力挑戰</th><th>單字聽打挑戰</th></tr></thead><tbody>`;
+  allUnitsGrouped.forEach(rowUnits=>{
+    html+="<tr>";
+    rowUnits.forEach(unit=>{
+      if(unit.trim()==="") html+="<td></td>";
+      else html+=`<td class="not-tested"><a href="${getUnitLink(unit)}" target="_blank" rel="noopener">${unit}</a><br>尚未挑戰
+      <div class="progress-container"><div class="progress-bar" style="width:0%;background-color:#ccc;"></div></div></td>`;
+    });
+    html+="</tr>";
+  });
+  html+=`</tbody></table>`;
+  document.getElementById("result").innerHTML=html;
+}
 
-    const allUnitsGrouped = [];
-    for (let i = 0; i < listeningUnits.length; i++) {
-      allUnitsGrouped.push([meaningUnits[i], listeningUnits[i], dictationUnits[i]]);
-    }
+async function queryScores(){
+  const nickname=document.getElementById("nicknameInput").value.trim();
+  if(!nickname) return;
+  const resultDiv=document.getElementById("result");
+  resultDiv.innerHTML="查詢中，請稍候...";
+  try{
+    const apiUrl="https://api.sheetbest.com/sheets/6609511a-f588-4e4f-bd2b-ed551cab8770";
+    const res=await fetch(apiUrl);
+    const data=await res.json();
+    const userRecords=data.filter(row=>row.nickname && row.nickname.toLowerCase()===nickname.toLowerCase());
+    const latestScores={};
+    userRecords.forEach(record=>{
+      const unit=record.gametitle||"未分類";
+      const timestamp=new Date(record["時間戳記"]);
+      if(!latestScores[unit]||timestamp>latestScores[unit].timestamp) latestScores[unit]={score:Number(record.score)||0,timestamp};
+    });
 
-    function getUnitLink(unitName) {
-      return unitLinks[unitName] || "#";
-    }
-
-    // 初始列表
-    function renderInitialTable() {
-      let html = `<h2>單元列表</h2>`;
-      html += `<table>
-        <thead>
-          <tr>
-            <th>單字聽音辨義挑戰</th>
-            <th>單字聽力挑戰</th>
-            <th>單字聽打挑戰</th>
-          </tr>
-        </thead>
-        <tbody>`;
-      allUnitsGrouped.forEach(rowUnits => {
-        html += "<tr>";
-        rowUnits.forEach(unit => {
-          if (unit.trim() === "") {
-            html += `<td></td>`;
-          } else {
-            const link = getUnitLink(unit);
-            html += `<td class="not-tested"><a href="${link}" target="_blank" rel="noopener">${unit}</a><br>尚未挑戰</td>`;
-          }
-        });
-        html += "</tr>";
-      });
-      html += `</tbody></table>`;
-      document.getElementById("result").innerHTML = html;
-    }
-
-    async function queryScores() {
-      const nickname = document.getElementById("nicknameInput").value.trim();
-      if (!nickname) return;
-
-      const resultDiv = document.getElementById("result");
-      resultDiv.innerHTML = "查詢中，請稍候...";
-      try {
-        const apiUrl = "https://api.sheetbest.com/sheets/6609511a-f588-4e4f-bd2b-ed551cab8770";
-        const res = await fetch(apiUrl);
-        const data = await res.json();
-
-        const userRecords = data.filter(row => row.nickname && row.nickname.toLowerCase() === nickname.toLowerCase());
-
-        const latestScores = {};
-        userRecords.forEach(record => {
-          const unit = record.gametitle || "未分類";
-          const timestamp = new Date(record["時間戳記"]);
-          if (!latestScores[unit] || timestamp > latestScores[unit].timestamp) {
-            latestScores[unit] = {
-              score: Number(record.score) || 0,
-              timestamp
-            };
-          }
-        });
-
-        let html = `<h2>${nickname} 的成績概覽</h2>`;
-        html += `<table>
-          <thead>
-            <tr>
-              <th>單字聽音辨義挑戰</th>
-              <th>單字聽力挑戰</th>
-              <th>單字聽打挑戰</th>
-            </tr>
-          </thead>
-          <tbody>`;
-
-        allUnitsGrouped.forEach(rowUnits => {
-          html += "<tr>";
-          const meaningUnit = rowUnits[0];
-          const listeningUnit = rowUnits[1];
-          const dictationUnit = rowUnits[2];
-
-          // 單字辨義
-          if (meaningUnit.trim() === "") {
-            html += `<td></td>`;
-          } else {
-            const score = latestScores[meaningUnit]?.score || 0;
-            const pass = score >= 80;
-            html += `<td class="${pass ? 'pass' : 'not-tested'}"><a href="${getUnitLink(meaningUnit)}" target="_blank" rel="noopener">${meaningUnit}</a><br>${pass ? '✅ 已完成' : '尚未挑戰'}</td>`;
-          }
-
-          // 單字聽力
-          if (listeningUnit.trim() === "") {
-            html += `<td></td>`;
-          } else {
-            const unlocked = latestScores[meaningUnit]?.score >= 80;
-            if (unlocked) {
-              const score = latestScores[listeningUnit]?.score || 0;
-              const pass = score >= 80;
-              html += `<td class="${pass ? 'pass' : 'not-tested'}"><a href="${getUnitLink(listeningUnit)}" target="_blank" rel="noopener">${listeningUnit}</a><br>${pass ? '✅ 已完成' : '尚未挑戰'}</td>`;
-            } else {
-              html += `<td class="locked">${listeningUnit}<br>🔒 鎖定</td>`;
-            }
-          }
-
-          // 單字聽打
-          if (dictationUnit.trim() === "") {
-            html += `<td></td>`;
-          } else {
-            const unlocked = latestScores[listeningUnit]?.score >= 80;
-            if (unlocked) {
-              const score = latestScores[dictationUnit]?.score || 0;
-              const pass = score >= 80;
-              html += `<td class="${pass ? 'pass' : 'not-tested'}"><a href="${getUnitLink(dictationUnit)}" target="_blank" rel="noopener">${dictationUnit}</a><br>${pass ? '✅ 已完成' : '尚未挑戰'}</td>`;
-            } else {
-              html += `<td class="locked">${dictationUnit}<br>🔒 鎖定</td>`;
-            }
-          }
-
-          html += "</tr>";
-        });
-
-        html += `</tbody></table>`;
-        resultDiv.innerHTML = html;
-      } catch (err) {
-        resultDiv.innerHTML = `<p style="color:red;">發生錯誤，請稍後再試。</p>`;
-        console.error(err);
+    let html=`<h2>${nickname} 的成績概覽</h2><table><thead><tr><th>單字聽音辨義挑戰</th><th>單字聽力挑戰</th><th>單字聽打挑戰</th></tr></thead><tbody>`;
+    allUnitsGrouped.forEach(rowUnits=>{
+      html+="<tr>";
+      const meaningUnit=rowUnits[0], listeningUnit=rowUnits[1], dictationUnit=rowUnits[2];
+      // 單字辨義
+      if(meaningUnit.trim()==="") html+="<td></td>";
+      else{
+        const score=latestScores[meaningUnit]?.score||0, pass=score>=80;
+        html+=`<td class="${pass?'pass':'not-tested'}"><a href="${getUnitLink(meaningUnit)}" target="_blank" rel="noopener">${meaningUnit}</a><br>${pass?'✅ 已完成':'尚未挑戰'}<div class="progress-container"><div class="progress-bar" style="width:${score}%;background-color:${pass?'#4caf50':'#ccc'}"></div></div></td>`;
       }
-    }
+      // 聽力
+      if(listeningUnit.trim()==="") html+="<td></td>";
+      else{
+        const unlocked=(rowUnits===allUnitsGrouped[0]) || latestScores[meaningUnit]?.score>=80;
+        if(unlocked){
+          const score=latestScores[listeningUnit]?.score||0, pass=score>=80;
+          html+=`<td class="${pass?'pass':'not-tested'}"><a href="${getUnitLink(listeningUnit)}" target="_blank" rel="noopener">${listeningUnit}</a><br>${pass?'✅ 已完成':'尚未挑戰'}<div class="progress-container"><div class="progress-bar" style="width:${score}%;background-color:${pass?'#4caf50':'#ccc'}"></div></div></td>`;
+        } else html+=`<td class="locked">${listeningUnit}<br>🔒 鎖定<div class="progress-container"><div class="progress-bar" style="width:0%;background-color:#ccc;"></div></div></td>`;
+      }
+      // 聽打
+      if(dictationUnit.trim()==="") html+="<td></td>";
+      else{
+        const unlocked=latestScores[listeningUnit]?.score>=80;
+        if(unlocked){
+          const score=latestScores[dictationUnit]?.score||0, pass=score>=80;
+          html+=`<td class="${pass?'pass':'not-tested'}"><a href="${getUnitLink(dictationUnit)}" target="_blank" rel="noopener">${dictationUnit}</a><br>${pass?'✅ 已完成':'尚未挑戰'}<div class="progress-container"><div class="progress-bar" style="width:${score}%;background-color:${pass?'#4caf50':'#ccc'}"></div></div></td>`;
+        } else html+=`<td class="locked">${dictationUnit}<br>🔒 鎖定<div class="progress-container"><div class="progress-bar" style="width:0%;background-color:#ccc;"></div></div></td>`;
+      }
+      html+="</tr>";
+    });
+    html+="</tbody></table>";
+    resultDiv.innerHTML=html;
+  }catch(err){resultDiv.innerHTML=`<p style="color:red;">發生錯誤，請稍後再試。</p>`;console.error(err);}
+}
 
-    // 初始化頁面顯示列表
-    renderInitialTable();
-  </script>
+renderInitialTable();
+</script>
 </body>
 </html>
