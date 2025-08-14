@@ -161,16 +161,37 @@
           </tr>
         </thead>
         <tbody>`;
-      allUnitsGrouped.forEach(rowUnits => {
+      allUnitsGrouped.forEach((rowUnits, index) => {
         html += "<tr>";
-        rowUnits.forEach(unit => {
-          if (unit.trim() === "") {
-            html += `<td></td>`;
+        const meaningUnit = rowUnits[0];
+        const listeningUnit = rowUnits[1];
+        const dictationUnit = rowUnits[2];
+
+        // 單字辨義
+        if (meaningUnit.trim() === "") {
+          html += `<td></td>`;
+        } else {
+          html += `<td class="not-tested"><a href="${getUnitLink(meaningUnit)}" target="_blank" rel="noopener">${meaningUnit}</a><br>尚未挑戰</td>`;
+        }
+
+        // 單字聽力
+        if (listeningUnit.trim() === "") {
+          html += `<td></td>`;
+        } else {
+          if (index === 0) { // 第一單元直接解鎖
+            html += `<td class="not-tested"><a href="${getUnitLink(listeningUnit)}" target="_blank" rel="noopener">${listeningUnit}</a><br>尚未挑戰</td>`;
           } else {
-            const link = getUnitLink(unit);
-            html += `<td class="not-tested"><a href="${link}" target="_blank" rel="noopener">${unit}</a><br>尚未挑戰</td>`;
+            html += `<td class="locked">${listeningUnit}<br>🔒 鎖定</td>`;
           }
-        });
+        }
+
+        // 單字聽打
+        if (dictationUnit.trim() === "") {
+          html += `<td></td>`;
+        } else {
+          html += `<td class="locked">${dictationUnit}<br>🔒 鎖定</td>`;
+        }
+
         html += "</tr>";
       });
       html += `</tbody></table>`;
@@ -213,7 +234,7 @@
           </thead>
           <tbody>`;
 
-        allUnitsGrouped.forEach(rowUnits => {
+        allUnitsGrouped.forEach((rowUnits, index) => {
           html += "<tr>";
           const meaningUnit = rowUnits[0];
           const listeningUnit = rowUnits[1];
@@ -232,7 +253,6 @@
           if (listeningUnit.trim() === "") {
             html += `<td></td>`;
           } else {
-            // 如果沒有單字辨義單元，就直接解鎖
             const unlocked = (meaningUnit.trim() === "" || latestScores[meaningUnit]?.score >= 80);
             if (unlocked) {
               const score = latestScores[listeningUnit]?.score || 0;
