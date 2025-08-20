@@ -220,15 +220,14 @@
 
         const userRecords = data.filter(row => row.nickname && row.nickname.toLowerCase() === nickname.toLowerCase());
 
-        const latestScores = {};
+        // 以「最高分」作為每個單元的分數來源（非最新時間）
+        const bestScores = {};
         userRecords.forEach(record => {
-          const unit = record.gametitle || "未分類";
-          const timestamp = new Date(record["時間戳記"]);
-          if (!latestScores[unit] || timestamp > latestScores[unit].timestamp) {
-            latestScores[unit] = {
-              score: Number(record.score) || 0,
-              timestamp
-            };
+          const unit = (record.gametitle || "").trim();
+          const s = Number(record.score);
+          if (!unit || !isFinite(s)) return;
+          if (!bestScores[unit] || s > bestScores[unit].score) {
+            bestScores[unit] = { score: s };
           }
         });
 
@@ -253,20 +252,26 @@
           if (meaningUnit.trim() === "") {
             html += `<td></td>`;
           } else {
-            const score = latestScores[meaningUnit]?.score || 0;
+            const score = bestScores[meaningUnit]?.score || 0;
             const pass = score >= 80;
-            html += `<td class="${pass ? 'pass' : 'not-tested'}"><a href="${getUnitLink(meaningUnit)}" target="_blank" rel="noopener">${meaningUnit}</a><br>${pass ? '✅ 已完成' : '尚未挑戰'}</td>`;
+            html += `<td class="${pass ? 'pass' : 'not-tested'}">`+
+                    `<a href="${getUnitLink(meaningUnit)}" target="_blank" rel="noopener">${meaningUnit}</a><br>`+
+                    `${pass ? `${score} 分 ✅合格` : '尚未挑戰'}`+
+                    `</td>`;
           }
 
           // 單字聽力
           if (listeningUnit.trim() === "") {
             html += `<td></td>`;
           } else {
-            const unlocked = (meaningUnit.trim() === "" || latestScores[meaningUnit]?.score >= 80) || index === 0;
+            const unlocked = (meaningUnit.trim() === "" || (bestScores[meaningUnit]?.score || 0) >= 80) || index === 0;
             if (unlocked) {
-              const score = latestScores[listeningUnit]?.score || 0;
+              const score = bestScores[listeningUnit]?.score || 0;
               const pass = score >= 80;
-              html += `<td class="${pass ? 'pass' : 'not-tested'}"><a href="${getUnitLink(listeningUnit)}" target="_blank" rel="noopener">${listeningUnit}</a><br>${pass ? '✅ 已完成' : '尚未挑戰'}</td>`;
+              html += `<td class="${pass ? 'pass' : 'not-tested'}">`+
+                      `<a href="${getUnitLink(listeningUnit)}" target="_blank" rel="noopener">${listeningUnit}</a><br>`+
+                      `${pass ? `${score} 分 ✅合格` : '尚未挑戰'}`+
+                      `</td>`;
             } else {
               html += `<td class="locked">${listeningUnit}<br>🔒 鎖定</td>`;
             }
@@ -276,11 +281,14 @@
           if (dictationUnit.trim() === "") {
             html += `<td></td>`;
           } else {
-            const unlocked = latestScores[listeningUnit]?.score >= 80;
+            const unlocked = (bestScores[listeningUnit]?.score || 0) >= 80;
             if (unlocked) {
-              const score = latestScores[dictationUnit]?.score || 0;
+              const score = bestScores[dictationUnit]?.score || 0;
               const pass = score >= 80;
-              html += `<td class="${pass ? 'pass' : 'not-tested'}"><a href="${getUnitLink(dictationUnit)}" target="_blank" rel="noopener">${dictationUnit}</a><br>${pass ? '✅ 已完成' : '尚未挑戰'}</td>`;
+              html += `<td class="${pass ? 'pass' : 'not-tested'}">`+
+                      `<a href="${getUnitLink(dictationUnit)}" target="_blank" rel="noopener">${dictationUnit}</a><br>`+
+                      `${pass ? `${score} 分 ✅合格` : '尚未挑戰'}`+
+                      `</td>`;
             } else {
               html += `<td class="locked">${dictationUnit}<br>🔒 鎖定</td>`;
             }
