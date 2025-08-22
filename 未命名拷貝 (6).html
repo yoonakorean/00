@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8" />
+<title>挑戰賽排行榜與成績</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<style>
+  body { font-family: sans-serif; max-width: 800px; margin: 30px auto; text-align: center; padding: 0 10px; }
+  #logo { width: 150px; max-width: 80%; margin-bottom: 10px; display: block; margin-left: auto; margin-right: auto; }
+  input, button { padding: 10px; font-size: 16px; width: 80%; max-width: 400px; margin: 10px auto; display: block; text-align: center; }
+  table { margin: 10px auto; border-collapse: collapse; width: 100%; max-width: 780px; }
+  th, td { border: 1px solid #ccc; padding: 8px 10px; text-align: center; vertical-align: middle; }
+  th { background-color: #f2f2f2; }
+  .pass .score { color: green; font-weight: normal; }
+  .pass .status { color: green; font-weight: normal; }
+  .pass a { color: black; text-decoration: none; font-weight: normal; }
+  .not-tested { color: gray; font-style: italic; }
+  .locked { color: gray; font-style: italic; }
+  .locked a { pointer-events: none; cursor: default; text-decoration: none; color: gray; }
+  a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<img src="logo.png" alt="Logo" id="logo" />
+<h1>歡迎參加挑戰賽</h1>
+<input id="nicknameInput" type="text" placeholder="請輸入您的姓名" />
+<button onclick="queryScores()">查詢成績</button>
+
+<div id="leaderboard"></div>
+<div id="userStats"></div>
+<div id="result"></div>
+
+<script>
+const listeningUnits = ["0-1 單字聽力挑戰","0-2 單字聽力挑戰","0-3 單字聽力挑戰","0-4 單字聽力挑戰","0-5 單字聽力挑戰","0-6 單字聽力挑戰","0-7 單字聽力挑戰","0-8 單字聽力挑戰","0-9 單字聽力挑戰","0-10 單字聽力挑戰","0-11 單字聽力挑戰"];
+const dictationUnits = ["0-1 單字聽打挑戰","0-2 單字聽打挑戰","0-3 單字聽打挑戰","0-4 單字聽打挑戰","0-5 單字聽打挑戰","0-6 單字聽打挑戰","0-7 單字聽打挑戰","0-8 單字聽打挑戰","0-9 單字聽打挑戰","0-10 單字聽打挑戰","0-11 單字聽打挑戰"];
+const meaningUnits = ["", "0-2 單字聽音辨義挑戰","0-3 單字聽音辨義挑戰","0-4 單字聽音辨義挑戰","0-5 單字聽音辨義挑戰","0-6 單字聽音辨義挑戰","0-7 單字聽音辨義挑戰","0-8 單字聽音辨義挑戰","0-9 單字聽音辨義挑戰","0-10 單字聽音辨義挑戰","0-11 單字聽音辨義挑戰"];
+const unitLinks = {
+  "0-1 單字聽音辨義挑戰": "",
+  "0-1 單字聽力挑戰": "https://yoonakorean.github.io/0001WC/",
+  "0-1 單字聽打挑戰": "https://yoonakorean.github.io/0001WT/",
+  "0-2 單字聽音辨義挑戰": "https://yoonakorean.github.io/0002WM/",
+  "0-2 單字聽力挑戰": "https://yoonakorean.github.io/0002WC/",
+  "0-2 單字聽打挑戰": "https://yoonakorean.github.io/0002WT/",
+  "0-3 單字聽音辨義挑戰": "https://yoonakorean.github.io/0003WM/",
+  "0-3 單字聽力挑戰": "https://yoonakorean.github.io/0003WC/",
+  "0-3 單字聽打挑戰": "https://yoonakorean.github.io/0003WT/",
+  "0-4 單字聽音辨義挑戰": "https://yoonakorean.github.io/0004WM/",
+  "0-4 單字聽力挑戰": "https://yoonakorean.github.io/0004WC/",
+  "0-4 單字聽打挑戰": "https://yoonakorean.github.io/0004WT/",
+  "0-5 單字聽音辨義挑戰": "https://yoonakorean.github.io/0005WM/",
+  "0-5 單字聽力挑戰": "https://yoonakorean.github.io/0005WC/",
+  "0-5 單字聽打挑戰": "https://yoonakorean.github.io/0005WT/",
+  "0-6 單字聽音辨義挑戰": "https://yoonakorean.github.io/0006WM/",
+  "0-6 單字聽力挑戰": "https://yoonakorean.github.io/0006WC/",
+  "0-6 單字聽打挑戰": "https://yoonakorean.github.io/0006WT/",
+  "0-7 單字聽音辨義挑戰": "https://yoonakorean.github.io/0007WM/",
+  "0-7 單字聽力挑戰": "https://yoonakorean.github.io/0007WC/",
+  "0-7 單字聽打挑戰": "https://yoonakorean.github.io/0007WT/",
+  "0-8 單字聽音辨義挑戰": "https://yoonakorean.github.io/0008WM/",
+  "0-8 單字聽力挑戰": "https://yoonakorean.github.io/0008WC/",
+  "0-8 單字聽打挑戰": "https://yoonakorean.github.io/0008WT/",
+  "0-9 單字聽音辨義挑戰": "https://yoonakorean.github.io/0009WM/",
+  "0-9 單字聽力挑戰": "https://yoonakorean.github.io/0009WC/",
+  "0-9 單字聽打挑戰": "https://yoonakorean.github.io/0009WT/",
+  "0-10 單字聽音辨義挑戰": "https://yoonakorean.github.io/0010WM/",
+  "0-10 單字聽力挑戰": "https://yoonakorean.github.io/0010WC/",
+  "0-10 單字聽打挑戰": "https://yoonakorean.github.io/0010WT/",
+  "0-11 單字聽音辨義挑戰": "https://yoonakorean.github.io/0011WM/",
+  "0-11 單字聽力挑戰": "https://yoonakorean.github.io/0011WC/",
+  "0-11 單字聽打挑戰": "https://yoonakorean.github.io/0011WT/"
+};
+
+const allUnitsGrouped = [];
+for(let i=0;i<listeningUnits.length;i++) allUnitsGrouped.push([meaningUnits[i],listeningUnits[i],dictationUnits[i]]);
+
+function getUnitLink(unitName){ return unitLinks[unitName] || "#"; }
+function parseTime(timeStr){ 
+  if(!timeStr) return 0; 
+  const match = timeStr.match(/(\d+)/);
+  return match?Number(match[1]):0;
+}
+function formatTime(seconds){
+  const m = Math.floor(seconds/60);
+  const s = seconds % 60;
+  return `${m}:${s.toString().padStart(2,'0')}`;
+}
+
+// 渲染單元表
+function renderUnitTable(userData=null){
+  let html=`<table><thead><tr><th>單字聽音辨義挑戰</th><th>單字聽力挑戰</th><th>單字聽打挑戰</th></tr></thead><tbody>`;
+  let unlockNext = true;
+  allUnitsGrouped.forEach(row=>{
+    html+="<tr>";
+    row.forEach(unitName=>{
+      if(!unitName.trim()){ html+="<td></td>"; return; }
+      const score=userData?.units[unitName]?.score || 0;
+      const pass=score>=80;
+      if(unlockNext){
+        html+=`<td class="${pass?'pass':'not-tested'}"><a href="${getUnitLink(unitName)}" target="_blank">${unitName}</a><br>`;
+        html+=pass?`<span class="score">${score} 分</span> <span class="status">✅合格</span>`:"尚未挑戰";
+        html+="</td>";
+        unlockNext=pass;
+      }else{
+        html+=`<td class="locked">${unitName}<br>🔒 鎖定</td>`;
+      }
+    });
+    html+="</tr>";
+  });
+  html+="</tbody></table>";
+  document.getElementById("result").innerHTML=html;
+}
+
+// 初始頁面
+renderUnitTable();
+
+// 查詢使用者
+async function queryScores(){
+  const nickname = document.getElementById("nicknameInput").value.trim();
+  if(!nickname) return;
+  const resultDiv=document.getElementById("result");
+  const leaderboardDiv=document.getElementById("leaderboard");
+  const userStatsDiv=document.getElementById("userStats");
+  resultDiv.innerHTML="查詢中，請稍候...";
+  leaderboardDiv.innerHTML="";
+  userStatsDiv.innerHTML="";
+
+  try{
+    const apiUrl="https://api.sheetbest.com/sheets/6609511a-f588-4e4f-bd2b-ed551cab8770";
+    const res = await fetch(apiUrl);
+    const data = await res.json();
+
+    const unitPattern = /^0-(1[0-1]|[1-9])/; // 0-1 到 0-11 開頭
+    const userBest={};
+    data.forEach(r=>{
+      if(!r.nickname) return;
+      const unit=(r.gametitle||"").trim();
+      if(!unitPattern.test(unit)) return; // 只統計 0-1~0-11
+      let score=Number(r.score);
+      let time=parseTime(r.time);
+      if(isNaN(score)) score=0;
+      if(!userBest[r.nickname]) userBest[r.nickname]={};
+      if(!userBest[r.nickname][unit] || score>userBest[r.nickname][unit].score){
+        userBest[r.nickname][unit]={score,time};
+      }
+    });
+
+    // 排行榜
+    const leaderboard=Object.entries(userBest).map(([name,units])=>{
+      const passed=Object.values(units).filter(u=>u.score>=80);
+      const passCount=passed.length;
+      const avgScore=passed.length?passed.reduce((a,b)=>a+b.score,0)/passed.length:0;
+      const totalTime=passed.reduce((a,b)=>a+b.time,0);
+      return {name,passCount,avgScore,totalTime,units};
+    });
+    leaderboard.sort((a,b)=>{
+      if(b.passCount!==a.passCount) return b.passCount-a.passCount;
+      if(b.avgScore!==a.avgScore) return b.avgScore-a.avgScore;
+      return a.totalTime-b.totalTime;
+    });
+
+    // 顯示排行榜前三名
+    let html=`<h2>排行榜前三名</h2><table><thead><tr><th>名次</th><th>姓名</th><th>通關數</th><th>平均分數</th><th>總時間</th></tr></thead><tbody>`;
+    leaderboard.slice(0,3).forEach((u,i)=>{
+      html+=`<tr><td>${i+1}</td><td>${u.name}</td><td>${u.passCount}</td><td>${u.avgScore.toFixed(1)}</td><td>${formatTime(u.totalTime)}</td></tr>`;
+    });
+    html+=`</tbody></table>`;
+    leaderboardDiv.innerHTML=html;
+
+    // 使用者統計
+    const userIndex=leaderboard.findIndex(u=>u.name.toLowerCase()===nickname.toLowerCase());
+    const userData=userIndex>=0?leaderboard[userIndex]:null;
+    if(userData){
+      userStatsDiv.innerHTML=`<h3>${nickname} 的統計</h3>
+      <p>排名：${userIndex+1} / ${leaderboard.length} | 通關數：${userData.passCount} | 平均分數：${userData.avgScore.toFixed(1)} | 總時間：${formatTime(userData.totalTime)}</p>`;
+    }
+
+    // 單元表（帶使用者資料解鎖規則）
+    renderUnitTable(userData);
+
+  }catch(err){
+    console.error(err);
+    resultDiv.innerHTML=`<p style="color:red;">發生錯誤，請稍後再試。</p>`;
+  }
+}
+</script>
+</body>
+</html>
