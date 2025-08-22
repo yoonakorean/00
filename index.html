@@ -18,6 +18,11 @@
   .locked { color: gray; font-style: italic; }
   .locked a { pointer-events: none; cursor: default; text-decoration: none; color: gray; }
   a:hover { text-decoration: underline; }
+
+  /* 排行榜前三名底色 */
+  .gold { background-color: #fff7c2; }   /* 金色 */
+  .silver { background-color: #e6e6e6; } /* 銀色 */
+  .bronze { background-color: #f9e0c7; } /* 銅色 */
 </style>
 </head>
 <body>
@@ -134,7 +139,7 @@ async function queryScores(){
     data.forEach(r=>{
       if(!r.nickname) return;
       const unit=(r.gametitle||"").trim();
-      if(!unitPattern.test(unit)) return; // 只統計 0-1~0-11
+      if(!unitPattern.test(unit)) return;
       let score=Number(r.score);
       let time=parseTime(r.time);
       if(isNaN(score)) score=0;
@@ -148,20 +153,24 @@ async function queryScores(){
     const leaderboard=Object.entries(userBest).map(([name,units])=>{
       const passed=Object.values(units).filter(u=>u.score>=80);
       const passCount=passed.length;
-      const avgScore=passed.length?passed.reduce((a,b)=>a+b.score,0)/passed.length:0;
-      const totalTime=passed.reduce((a,b)=>a+b.time,0);
-      return {name,passCount,avgScore,totalTime,units};
+      const totalScore=passed.reduce((a,b)=>a+b.score,0);
+      const totalTime=Object.values(units).reduce((a,b)=>a+b.time,0);
+      const challengeCount=Object.keys(units).length;
+      const avgTime=challengeCount?totalTime/challengeCount:0; // 👉 平均時間用「總挑戰數」當分母
+      return {name,passCount,totalScore,avgTime,units};
     });
     leaderboard.sort((a,b)=>{
       if(b.passCount!==a.passCount) return b.passCount-a.passCount;
-      if(b.avgScore!==a.avgScore) return b.avgScore-a.avgScore;
-      return a.totalTime-b.totalTime;
+      if(b.totalScore!==a.totalScore) return b.totalScore-a.totalScore;
+      return a.avgTime-b.avgTime;
     });
 
     // 顯示排行榜前三名
-    let html=`<h2>排行榜前三名</h2><table><thead><tr><th>名次</th><th>姓名</th><th>通關數</th><th>平均分數</th><th>總時間</th></tr></thead><tbody>`;
+    let html=`<h2>排行榜前三名</h2><table><thead><tr><th>名次</th><th>姓名</th><th>通關數</th><th>總分</th><th>平均時間</th></tr></thead><tbody>`;
+    const medals=["🥇","🥈","🥉"];
+    const medalClasses=["gold","silver","bronze"];
     leaderboard.slice(0,3).forEach((u,i)=>{
-      html+=`<tr><td>${i+1}</td><td>${u.name}</td><td>${u.passCount}</td><td>${u.avgScore.toFixed(1)}</td><td>${formatTime(u.totalTime)}</td></tr>`;
+      html+=`<tr class="${medalClasses[i]}"><td>${i+1} ${medals[i]}</td><td>${u.name}</td><td>${u.passCount}</td><td>${u.totalScore}</td><td>${formatTime(Math.round(u.avgTime))}</td></tr>`;
     });
     html+=`</tbody></table>`;
     leaderboardDiv.innerHTML=html;
@@ -171,10 +180,10 @@ async function queryScores(){
     const userData=userIndex>=0?leaderboard[userIndex]:null;
     if(userData){
       userStatsDiv.innerHTML=`<h3>${nickname} 的統計</h3>
-      <p>排名：第 ${userIndex+1} 名 | 通關數：${userData.passCount} | 平均分數：${userData.avgScore.toFixed(1)} | 總時間：${formatTime(userData.totalTime)}</p>`;
+      <p>排名：第 ${userIndex+1} 名 | 通關數：${userData.passCount} | 總分：${userData.totalScore} | 平均時間：${formatTime(Math.round(userData.avgTime))}</p>`;
     }
 
-    // 單元表（帶使用者資料解鎖規則）
+    // 單元表
     renderUnitTable(userData);
 
   }catch(err){
