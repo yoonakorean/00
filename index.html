@@ -161,7 +161,7 @@ async function queryScores(){
       const totalScore=passed.reduce((a,b)=>a+b.score,0);
       const totalTime=Object.values(units).reduce((a,b)=>a+b.time,0);
       const challengeCount=Object.keys(units).length;
-      const avgTime=challengeCount?totalTime/challengeCount:0; // 平均時間用總挑戰數
+      const avgTime=challengeCount?totalTime/challengeCount:0;
       return {name,passCount,totalScore,avgTime,units};
     });
     leaderboard.sort((a,b)=>{
@@ -170,12 +170,12 @@ async function queryScores(){
       return a.avgTime-b.avgTime;
     });
 
-    // 顯示排行榜前三名
+    // 顯示排行榜前三名（只顯示獎牌）
     let html=`<h2>排行榜前三名</h2><table><thead><tr><th>名次</th><th>姓名</th><th>通關數</th><th>總分</th><th>平均時間</th></tr></thead><tbody>`;
     const medals=["🥇","🥈","🥉"];
     const medalClasses=["gold","silver","bronze"];
     leaderboard.slice(0,3).forEach((u,i)=>{
-      html+=`<tr class="${medalClasses[i]}"><td class="medal">${i+1} ${medals[i]}</td><td>${u.name}</td><td>${u.passCount}</td><td>${u.totalScore}</td><td>${formatTime(Math.round(u.avgTime))}</td></tr>`;
+      html+=`<tr class="${medalClasses[i]}"><td class="medal">${medals[i]}</td><td>${u.name}</td><td>${u.passCount}</td><td>${u.totalScore}</td><td>${formatTime(Math.round(u.avgTime))}</td></tr>`;
     });
     html+=`</tbody></table>`;
     leaderboardDiv.innerHTML=html;
