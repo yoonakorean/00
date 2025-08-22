@@ -5,34 +5,12 @@
 <title>挑戰賽排行榜與成績</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <style>
-  body { 
-    font-family: sans-serif; 
-    max-width: 800px; 
-    margin: 30px auto; 
-    text-align: center; 
-    padding: 0 10px; 
-  }
-  #logo { 
-    width: 150px; 
-    margin-bottom: 20px; 
-  }
-  table { 
-    width: 100%; 
-    border-collapse: collapse; 
-    margin-top: 20px; 
-  }
-  th, td { 
-    border: 1px solid #ccc; 
-    padding: 10px; 
-    text-align: center; 
-  }
-  th { 
-    background: #f2f2f2; 
-  }
-  .highlight { 
-    background: #fffae6; 
-    font-weight: bold; 
-  }
+  body { font-family: sans-serif; max-width: 800px; margin: 30px auto; text-align: center; padding: 0 10px; }
+  #logo { width: 150px; margin-bottom: 20px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+  th, td { border: 1px solid #ccc; padding: 10px; text-align: center; }
+  th { background: #f2f2f2; }
+  .highlight { background: #fffae6; font-weight: bold; }
   .medal {
     width: 40px;   /* 放大獎牌 */
     height: auto;
@@ -67,7 +45,7 @@ const medalIcons = {
 fetch("https://api.sheetbest.com/sheets/6609511a-f588-4e32-b708-21ff2db40d2b")
   .then(res => res.json())
   .then(data => {
-    // 排序：先比分數，再比平均秒數（小的在前）
+    // 依照分數高到低，若分數相同再比平均秒數（小的在前）
     data.sort((a, b) => {
       if (b.score != a.score) return b.score - a.score;
       return (a.time / a.units) - (b.time / b.units);
@@ -77,7 +55,7 @@ fetch("https://api.sheetbest.com/sheets/6609511a-f588-4e32-b708-21ff2db40d2b")
     data.forEach((row, index) => {
       const tr = document.createElement("tr");
 
-      // 排名或獎牌
+      // 獎牌或名次
       const rankCell = document.createElement("td");
       if (medalIcons[index+1]) {
         rankCell.innerHTML = `<img src="${medalIcons[index+1]}" class="medal">`;
