@@ -12,12 +12,13 @@
     table { margin: 0 auto; border-collapse: collapse; width: 100%; max-width: 780px; }
     th, td { border: 1px solid #ccc; padding: 8px 10px; text-align: center; vertical-align: middle; }
     th { background-color: #f2f2f2; }
-    .pass { color: green; font-weight: bold; }
-    .fail { color: red; font-weight: bold; }
+    .pass { font-weight: bold; }
+    .pass .score { color: green; }
+    .pass .status { color: green; }
     .not-tested { color: gray; font-style: italic; }
     .locked { color: gray; font-style: italic; }
     .locked a { pointer-events: none; cursor: default; text-decoration: none; color: gray; }
-    a { text-decoration: none; color: inherit; }
+    a { text-decoration: none; color: black; } /* 挑戰名稱維持黑色 */
     a:hover { text-decoration: underline; }
   </style>
 </head>
@@ -95,47 +96,29 @@
                 <th>單字聽打挑戰</th>
               </tr></thead><tbody>`;
 
-      let unlockNext = true; // 只會放行第一個單元 (0-1 聽力)
+      let unlockNext = true;
 
       allUnitsGrouped.forEach((rowUnits) => {
         html += "<tr>";
         const [meaningUnit, listeningUnit, dictationUnit] = rowUnits;
 
-        // meaning
-        if (meaningUnit.trim()) {
+        function renderCell(unitName) {
+          if (!unitName.trim()) return "<td></td>";
           if (unlockNext) {
-            html += `<td class="not-tested"><a href="${getUnitLink(meaningUnit)}" target="_blank">${meaningUnit}</a><br>尚未挑戰</td>`;
-            unlockNext = false; // 之後全鎖
+            let cell = `<td class="not-tested">
+                          <a href="${getUnitLink(unitName)}" target="_blank">${unitName}</a><br>
+                          尚未挑戰
+                        </td>`;
+            unlockNext = false;
+            return cell;
           } else {
-            html += `<td class="locked">${meaningUnit}<br>🔒 鎖定</td>`;
+            return `<td class="locked">${unitName}<br>🔒 鎖定</td>`;
           }
-        } else {
-          html += `<td></td>`;
         }
 
-        // listening
-        if (listeningUnit.trim()) {
-          if (unlockNext) {
-            html += `<td class="not-tested"><a href="${getUnitLink(listeningUnit)}" target="_blank">${listeningUnit}</a><br>尚未挑戰</td>`;
-            unlockNext = false;
-          } else {
-            html += `<td class="locked">${listeningUnit}<br>🔒 鎖定</td>`;
-          }
-        } else {
-          html += `<td></td>`;
-        }
-
-        // dictation
-        if (dictationUnit.trim()) {
-          if (unlockNext) {
-            html += `<td class="not-tested"><a href="${getUnitLink(dictationUnit)}" target="_blank">${dictationUnit}</a><br>尚未挑戰</td>`;
-            unlockNext = false;
-          } else {
-            html += `<td class="locked">${dictationUnit}<br>🔒 鎖定</td>`;
-          }
-        } else {
-          html += `<td></td>`;
-        }
+        html += renderCell(meaningUnit);
+        html += renderCell(listeningUnit);
+        html += renderCell(dictationUnit);
 
         html += "</tr>";
       });
@@ -179,53 +162,29 @@
           html += "<tr>";
           const [meaningUnit, listeningUnit, dictationUnit] = rowUnits;
 
-          // meaning
-          if (meaningUnit.trim()) {
+          function renderCell(unitName) {
+            if (!unitName.trim()) return "<td></td>";
             if (unlockNext) {
-              const score = bestScores[meaningUnit]?.score || 0;
+              const score = bestScores[unitName]?.score || 0;
               const pass = score >= 80;
-              html += `<td class="${pass ? "pass" : "not-tested"}">
-                        <a href="${getUnitLink(meaningUnit)}" target="_blank">${meaningUnit}</a><br>
-                        ${pass ? score + " 分 ✅合格" : "尚未挑戰"}</td>`;
+              let cell = `<td class="${pass ? "pass" : "not-tested"}">
+                            <a href="${getUnitLink(unitName)}" target="_blank">${unitName}</a><br>`;
+              if (pass) {
+                cell += `<span class="score">${score} 分</span> <span class="status">✅合格</span>`;
+              } else {
+                cell += "尚未挑戰";
+              }
+              cell += "</td>";
               unlockNext = pass;
+              return cell;
             } else {
-              html += `<td class="locked">${meaningUnit}<br>🔒 鎖定</td>`;
+              return `<td class="locked">${unitName}<br>🔒 鎖定</td>`;
             }
-          } else {
-            html += `<td></td>`;
           }
 
-          // listening
-          if (listeningUnit.trim()) {
-            if (unlockNext) {
-              const score = bestScores[listeningUnit]?.score || 0;
-              const pass = score >= 80;
-              html += `<td class="${pass ? "pass" : "not-tested"}">
-                        <a href="${getUnitLink(listeningUnit)}" target="_blank">${listeningUnit}</a><br>
-                        ${pass ? score + " 分 ✅合格" : "尚未挑戰"}</td>`;
-              unlockNext = pass;
-            } else {
-              html += `<td class="locked">${listeningUnit}<br>🔒 鎖定</td>`;
-            }
-          } else {
-            html += `<td></td>`;
-          }
-
-          // dictation
-          if (dictationUnit.trim()) {
-            if (unlockNext) {
-              const score = bestScores[dictationUnit]?.score || 0;
-              const pass = score >= 80;
-              html += `<td class="${pass ? "pass" : "not-tested"}">
-                        <a href="${getUnitLink(dictationUnit)}" target="_blank">${dictationUnit}</a><br>
-                        ${pass ? score + " 分 ✅合格" : "尚未挑戰"}</td>`;
-              unlockNext = pass;
-            } else {
-              html += `<td class="locked">${dictationUnit}<br>🔒 鎖定</td>`;
-            }
-          } else {
-            html += `<td></td>`;
-          }
+          html += renderCell(meaningUnit);
+          html += renderCell(listeningUnit);
+          html += renderCell(dictationUnit);
 
           html += "</tr>";
         });
