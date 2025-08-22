@@ -29,16 +29,16 @@
   th { 
     background: #f2f2f2; 
   }
+  .highlight { 
+    background: #fffae6; 
+    font-weight: bold; 
+  }
   .medal {
     width: 40px;   /* 放大獎牌 */
     height: auto;
     vertical-align: middle;
     margin-right: 6px;
   }
-  /* 前三名背景色 */
-  .gold-row { background-color: #fff7c2; }   /* 金色 */
-  .silver-row { background-color: #e6e6e6; } /* 銀色 */
-  .bronze-row { background-color: #f9e0c7; } /* 銅色 */
 </style>
 </head>
 <body>
@@ -64,12 +64,6 @@ const medalIcons = {
   3: "https://cdn-icons-png.flaticon.com/512/2583/2583399.png"  // 銅牌
 };
 
-const rowClasses = {
-  1: "gold-row",
-  2: "silver-row",
-  3: "bronze-row"
-};
-
 fetch("https://api.sheetbest.com/sheets/6609511a-f588-4e32-b708-21ff2db40d2b")
   .then(res => res.json())
   .then(data => {
@@ -82,9 +76,6 @@ fetch("https://api.sheetbest.com/sheets/6609511a-f588-4e32-b708-21ff2db40d2b")
     const tbody = document.querySelector("#rankingTable tbody");
     data.forEach((row, index) => {
       const tr = document.createElement("tr");
-
-      // 前三名整列背景色
-      if (rowClasses[index+1]) tr.classList.add(rowClasses[index+1]);
 
       // 排名或獎牌
       const rankCell = document.createElement("td");
