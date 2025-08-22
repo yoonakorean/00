@@ -23,6 +23,11 @@
   .gold { background-color: #fff7c2; }   /* 金色 */
   .silver { background-color: #e6e6e6; } /* 銀色 */
   .bronze { background-color: #f9e0c7; } /* 銅色 */
+
+  /* 獎牌放大 */
+  td.medal {
+    font-size: 32px; /* 可依需求調整大小 */
+  }
 </style>
 </head>
 <body>
@@ -156,7 +161,7 @@ async function queryScores(){
       const totalScore=passed.reduce((a,b)=>a+b.score,0);
       const totalTime=Object.values(units).reduce((a,b)=>a+b.time,0);
       const challengeCount=Object.keys(units).length;
-      const avgTime=challengeCount?totalTime/challengeCount:0; // 👉 平均時間用「總挑戰數」當分母
+      const avgTime=challengeCount?totalTime/challengeCount:0; // 平均時間用總挑戰數
       return {name,passCount,totalScore,avgTime,units};
     });
     leaderboard.sort((a,b)=>{
@@ -170,7 +175,7 @@ async function queryScores(){
     const medals=["🥇","🥈","🥉"];
     const medalClasses=["gold","silver","bronze"];
     leaderboard.slice(0,3).forEach((u,i)=>{
-      html+=`<tr class="${medalClasses[i]}"><td>${i+1} ${medals[i]}</td><td>${u.name}</td><td>${u.passCount}</td><td>${u.totalScore}</td><td>${formatTime(Math.round(u.avgTime))}</td></tr>`;
+      html+=`<tr class="${medalClasses[i]}"><td class="medal">${i+1} ${medals[i]}</td><td>${u.name}</td><td>${u.passCount}</td><td>${u.totalScore}</td><td>${formatTime(Math.round(u.avgTime))}</td></tr>`;
     });
     html+=`</tbody></table>`;
     leaderboardDiv.innerHTML=html;
