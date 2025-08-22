@@ -86,10 +86,10 @@ fetch("https://api.sheetbest.com/sheets/6609511a-f588-4e32-b708-21ff2db40d2b")
       // 前三名整列背景色
       if (rowClasses[index+1]) tr.classList.add(rowClasses[index+1]);
 
-      // 排名或獎牌 + 數字
+      // 排名或獎牌
       const rankCell = document.createElement("td");
       if (medalIcons[index+1]) {
-        rankCell.innerHTML = `<img src="${medalIcons[index+1]}" class="medal">${index+1}`;
+        rankCell.innerHTML = `<img src="${medalIcons[index+1]}" class="medal">`;
       } else {
         rankCell.textContent = index + 1;
       }
