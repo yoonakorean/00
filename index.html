@@ -40,7 +40,6 @@
 <button onclick="queryScores()">查詢成績</button>
 
 <div id="leaderboard"></div>
-<div id="userStats"></div>
 <div id="result"></div>
 
 <script>
@@ -133,9 +132,9 @@ function renderLeaderboard(leaderboard, userData=null, userIndex=-1){
     html+=`<tr class="${medalClasses[i]}"><td class="medal">${medals[i]}</td><td>${u.name}</td><td>${u.passCount}</td><td>${u.totalScore}</td><td>${formatTime(Math.round(u.avgTime))}</td></tr>`;
   });
 
-  // 第 4 格永遠顯示使用者
+  // 第 4 格顯示使用者的實際排名數字
   if(userData){
-    html+=`<tr class="self-row"><td class="medal">⭐</td><td>${userData.name}</td><td>${userData.passCount}</td><td>${userData.totalScore}</td><td>${formatTime(Math.round(userData.avgTime))}</td></tr>`;
+    html+=`<tr class="self-row"><td class="medal">${userIndex+1}</td><td>${userData.name}</td><td>${userData.passCount}</td><td>${userData.totalScore}</td><td>${formatTime(Math.round(userData.avgTime))}</td></tr>`;
   }else{
     html+=`<tr class="self-row"><td colspan="5">（此處顯示查詢使用者成績）</td></tr>`;
   }
@@ -147,8 +146,6 @@ function renderLeaderboard(leaderboard, userData=null, userIndex=-1){
 // 讀取 API & 排行榜
 async function loadLeaderboard(nickname=""){
   const resultDiv=document.getElementById("result");
-  const userStatsDiv=document.getElementById("userStats");
-  if(!nickname){ resultDiv.innerHTML=""; userStatsDiv.innerHTML=""; }
 
   try{
     const apiUrl="https://api.sheetbest.com/sheets/6609511a-f588-4e4f-bd2b-ed551cab8770";
@@ -195,8 +192,6 @@ async function loadLeaderboard(nickname=""){
     renderLeaderboard(leaderboard,userData,userIndex);
 
     if(userData){
-      userStatsDiv.innerHTML=`<h3>${nickname} 的統計</h3>
-      <p>排名：第 ${userIndex+1} 名 | 通關數：${userData.passCount} | 總分：${userData.totalScore} | 平均時間：${formatTime(Math.round(userData.avgTime))}</p>`;
       renderUnitTable(userData);
     }else{
       renderUnitTable();
