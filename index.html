@@ -31,6 +31,38 @@
   td.medal {
     font-size: 32px;
   }
+
+  /* 手機自適應 */
+  @media (max-width: 480px) {
+    body {
+      padding: 10px;
+    }
+
+    h1, h2 {
+      font-size: 18px;
+    }
+
+    input, button {
+      width: 100%;
+      font-size: 14px;
+      padding: 8px;
+    }
+
+    table, th, td {
+      font-size: 12px;
+      padding: 6px 4px;
+    }
+
+    td.medal {
+      font-size: 24px;
+    }
+
+    /* 表格文字換行避免過長 */
+    td a, td span {
+      display: block;
+      word-break: break-word;
+    }
+  }
 </style>
 </head>
 <body>
