@@ -5,63 +5,87 @@
 <title>挑戰賽排行榜與成績</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <style>
-  body { font-family: sans-serif; max-width: 800px; margin: 30px auto; text-align: center; padding: 0 10px; }
-  #logo { width: 150px; max-width: 80%; margin-bottom: 10px; display: block; margin-left: auto; margin-right: auto; }
-  input, button { padding: 10px; font-size: 16px; width: 80%; max-width: 400px; margin: 10px auto; display: block; text-align: center; }
-  table { margin: 10px auto; border-collapse: collapse; width: 100%; max-width: 780px; }
-  th, td { border: 1px solid #ccc; padding: 8px 10px; text-align: center; vertical-align: middle; }
+  body { 
+    font-family: sans-serif; 
+    max-width: 800px; 
+    margin: 30px auto; 
+    text-align: center; 
+    padding: 0 10px; 
+  }
+
+  #logo { 
+    width: 150px; 
+    max-width: 80%; 
+    margin: 10px auto; 
+    display: block; 
+  }
+
+  input, button { 
+    padding: 10px; 
+    font-size: 16px; 
+    width: 80%; 
+    max-width: 400px; 
+    margin: 10px auto; 
+    display: block; 
+    text-align: center; 
+  }
+
+  table { 
+    margin: 10px auto; 
+    border-collapse: collapse; 
+    width: 100%; 
+    max-width: 780px; 
+  }
+
+  th, td { 
+    border: 1px solid #ccc; 
+    padding: 8px 10px; 
+    text-align: center; 
+    vertical-align: middle; 
+  }
+
   th { background-color: #f2f2f2; }
+
   .pass .score { color: green; font-weight: normal; }
   .pass .status { color: green; font-weight: normal; }
   .pass a { color: black; text-decoration: none; font-weight: normal; }
+
   .not-tested { color: gray; font-style: italic; }
   .locked { color: gray; font-style: italic; }
   .locked a { pointer-events: none; cursor: default; text-decoration: none; color: gray; }
+
   a:hover { text-decoration: underline; }
 
   /* 排行榜前三名底色 */
-  .gold { background-color: #fff7c2; }   /* 金色 */
-  .silver { background-color: #ffffff; } /* 銀色 */
-  .bronze { background-color: #ffffff; } /* 銅色 */
+  .gold { background-color: #fff7c2; }   
+  .silver { background-color: #ffffff; } 
+  .bronze { background-color: #ffffff; } 
 
   /* 使用者專屬底色 */
   .self-row { background-color: #cce5ff; }
 
   /* 獎牌放大 */
-  td.medal {
-    font-size: 32px;
-  }
+  td.medal { font-size: 32px; }
 
   /* 手機自適應 */
   @media (max-width: 480px) {
-    body {
-      padding: 10px;
-    }
+    body { padding: 10px; }
 
-    h1, h2 {
-      font-size: 18px;
-    }
+    h1, h2 { font-size: 18px; }
 
     input, button {
-      width: 100%;
-      font-size: 14px;
-      padding: 8px;
+      width: 100%; 
+      font-size: 14px; 
+      padding: 8px; 
+      margin-left: auto; 
+      margin-right: auto;
     }
 
-    table, th, td {
-      font-size: 12px;
-      padding: 6px 4px;
-    }
+    table, th, td { font-size: 12px; padding: 6px 4px; }
 
-    td.medal {
-      font-size: 24px;
-    }
+    td.medal { font-size: 24px; }
 
-    /* 表格文字換行避免過長 */
-    td a, td span {
-      display: block;
-      word-break: break-word;
-    }
+    td a, td span { display: block; word-break: break-word; }
   }
 </style>
 </head>
