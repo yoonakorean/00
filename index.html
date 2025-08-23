@@ -122,6 +122,13 @@ function renderUnitTable(userData=null){
   document.getElementById("result").innerHTML=html;
 }
 
+// 名字局部隱藏
+function maskName(name){
+  if(!name) return "";
+  if(name.length < 2) return name;
+  return name[0] + "O" + name.slice(2);
+}
+
 // 產生排行榜 (可帶入使用者)
 function renderLeaderboard(leaderboard, userData=null, userIndex=-1){
   let html=`<h2>排行榜前三名</h2><table><thead><tr><th>名次</th><th>姓名</th><th>通關數</th><th>總分</th><th>平均時間</th></tr></thead><tbody>`;
@@ -129,10 +136,11 @@ function renderLeaderboard(leaderboard, userData=null, userIndex=-1){
   const medalClasses=["gold","silver","bronze"];
 
   leaderboard.slice(0,3).forEach((u,i)=>{
-    html+=`<tr class="${medalClasses[i]}"><td class="medal">${medals[i]}</td><td>${u.name}</td><td>${u.passCount}</td><td>${u.totalScore}</td><td>${formatTime(Math.round(u.avgTime))}</td></tr>`;
+    const displayName = userData && u.name === userData.name ? u.name : maskName(u.name);
+    html+=`<tr class="${medalClasses[i]}"><td class="medal">${medals[i]}</td><td>${displayName}</td><td>${u.passCount}</td><td>${u.totalScore}</td><td>${formatTime(Math.round(u.avgTime))}</td></tr>`;
   });
 
-  // 第 4 格顯示使用者的實際排名數字
+  // 第 4 格顯示使用者的實際排名數字，名字完整
   if(userData){
     html+=`<tr class="self-row"><td class="medal">${userIndex+1}</td><td>${userData.name}</td><td>${userData.passCount}</td><td>${userData.totalScore}</td><td>${formatTime(Math.round(userData.avgTime))}</td></tr>`;
   }else{
