@@ -28,6 +28,7 @@
     margin: 10px auto; 
     display: block; 
     text-align: center; 
+    box-sizing: border-box;
   }
 
   table { 
@@ -46,46 +47,36 @@
 
   th { background-color: #f2f2f2; }
 
-  .pass .score { color: green; font-weight: normal; }
-  .pass .status { color: green; font-weight: normal; }
-  .pass a { color: black; text-decoration: none; font-weight: normal; }
+  .pass .score-status span { display: block; }
 
+  .pass .score-status { 
+    display: flex;
+    flex-direction: column; 
+    justify-content: center;
+    align-items: center;
+    gap: 2px;
+    margin-top: 4px;
+  }
+
+  .pass a { color: black; text-decoration: none; font-weight: normal; }
   .not-tested { color: gray; font-style: italic; }
   .locked { color: gray; font-style: italic; }
   .locked a { pointer-events: none; cursor: default; text-decoration: none; color: gray; }
-
   a:hover { text-decoration: underline; }
 
-  /* 排行榜前三名底色 */
   .gold { background-color: #fff7c2; }   
   .silver { background-color: #ffffff; } 
   .bronze { background-color: #ffffff; } 
-
-  /* 使用者專屬底色 */
   .self-row { background-color: #cce5ff; }
-
-  /* 獎牌放大 */
   td.medal { font-size: 32px; }
 
-  /* 手機自適應 */
   @media (max-width: 480px) {
     body { padding: 10px; }
-
     h1, h2 { font-size: 18px; }
-
-    input, button {
-      width: 100%; 
-      font-size: 14px; 
-      padding: 8px; 
-      margin-left: auto; 
-      margin-right: auto;
-    }
-
+    input, button { width: 100%; font-size: 14px; padding: 8px; margin: 10px auto; box-sizing: border-box; }
     table, th, td { font-size: 12px; padding: 6px 4px; }
-
     td.medal { font-size: 24px; }
-
-    td a, td span { display: block; word-break: break-word; }
+    td a, td span { word-break: break-word; }
   }
 </style>
 </head>
@@ -140,7 +131,6 @@ const unitLinks = {
 
 const allUnitsGrouped = [];
 for(let i=0;i<listeningUnits.length;i++) allUnitsGrouped.push([meaningUnits[i],listeningUnits[i],dictationUnits[i]]);
-
 function getUnitLink(unitName){ return unitLinks[unitName] || "#"; }
 function parseTime(timeStr){ 
   if(!timeStr) return 0; 
@@ -162,10 +152,18 @@ function renderUnitTable(userData=null){
     row.forEach(unitName=>{
       if(!unitName.trim()){ html+="<td></td>"; return; }
       const score=userData?.units[unitName]?.score || 0;
+      const time=userData?.units[unitName]?.time || 0;
       const pass=score>=80;
       if(unlockNext){
         html+=`<td class="${pass?'pass':'not-tested'}"><a href="${getUnitLink(unitName)}" target="_blank">${unitName}</a><br>`;
-        html+=pass?`<span class="score">${score} 分</span> <span class="status">✅合格</span>`:"尚未挑戰";
+        if(pass){
+          html+=`<div class="score-status">
+                   <span class="status">✅合格</span>
+                   <span class="score-time">${score} 分 / ${time}秒</span>
+                 </div>`;
+        }else{
+          html+="尚未挑戰";
+        }
         html+="</td>";
         unlockNext=pass;
       }else{
@@ -185,7 +183,7 @@ function maskName(name){
   return name[0] + "O" + name.slice(2);
 }
 
-// 產生排行榜 (可帶入使用者)
+// 產生排行榜
 function renderLeaderboard(leaderboard, userData=null, userIndex=-1){
   let html=`<h2>排行榜前三名</h2><table><thead><tr><th>名次</th><th>姓名</th><th>通關數</th><th>總分</th><th>平均時間</th></tr></thead><tbody>`;
   const medals=["🥇","🥈","🥉"];
@@ -196,7 +194,6 @@ function renderLeaderboard(leaderboard, userData=null, userIndex=-1){
     html+=`<tr class="${medalClasses[i]}"><td class="medal">${medals[i]}</td><td>${displayName}</td><td>${u.passCount}</td><td>${u.totalScore}</td><td>${formatTime(Math.round(u.avgTime))}</td></tr>`;
   });
 
-  // 第 4 格顯示使用者的實際排名數字，名字完整
   if(userData){
     html+=`<tr class="self-row"><td class="medal">${userIndex+1}</td><td>${userData.name}</td><td>${userData.passCount}</td><td>${userData.totalScore}</td><td>${formatTime(Math.round(userData.avgTime))}</td></tr>`;
   }else{
@@ -254,12 +251,7 @@ async function loadLeaderboard(nickname=""){
     }
 
     renderLeaderboard(leaderboard,userData,userIndex);
-
-    if(userData){
-      renderUnitTable(userData);
-    }else{
-      renderUnitTable();
-    }
+    renderUnitTable(userData);
 
   }catch(err){
     console.error(err);
@@ -273,7 +265,7 @@ function queryScores(){
   if(nickname) loadLeaderboard(nickname);
 }
 
-// 頁面一開啟自動載入排行榜
+// 自動載入排行榜
 window.onload=()=>loadLeaderboard();
 </script>
 </body>
